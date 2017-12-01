@@ -26,6 +26,13 @@ class bDouble {
 			throw std::range_error( "bDouble range is inverse, try swapping max/min!" );
 	}
 public:
+	inline bDouble() {
+		min=0;
+		max=0;
+		target=0;
+		value=0;
+		speed=0;
+	}
 	inline bDouble(double aMin, double aMax, double aTarget, double aValue, double aSpeed):min(aMin),max(aMax),target(aTarget),value(aValue),speed(aSpeed) {
 		instances.push_back(this);
 		//std::cout << "[bDouble] created (now " << instances.size() << ")" << std::endl;
