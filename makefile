@@ -41,7 +41,7 @@ CXXFLAGS := -std=c++11
 # C/C++ flags
 CPPFLAGS := -g -Wall -Wextra 
 # linker flags
-LDFLAGS := -larmadillo -lSDL2
+LDFLAGS := -larmadillo -lSDL2main -lSDL2 -lSDL2_ttf
 # flags required for dependency generation; passed to compilers
 DEPFLAGS = -MT $@ -MD -MP -MF $(DEPDIR)/$*.Td
 
