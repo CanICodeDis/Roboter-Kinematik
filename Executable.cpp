@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <ctime>
 
-#define TFONT_NAME "DejaVuSansMono.ttf"
+#define TFONT_NAME "assets/fonts/DejaVuSansMono.ttf"
 #define SCREEN_WIDTH 720
 #define SCREEN_HEIGHT 480
 

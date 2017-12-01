@@ -1,5 +1,5 @@
 # output binary
-BIN := rob
+BIN := robot.out
 
 # source files
 SRCS := \
