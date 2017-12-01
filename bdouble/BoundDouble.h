@@ -146,6 +146,10 @@ public:
 		target = value;
 		return *this;
 	}
+	inline bDouble& jump(double newvalue) {
+		try { value = target = validate(newvalue); } catch(...) { throw; }
+		return *this;
+	}
 
 	inline void t(int ms) {
 		double dif = target-value;
