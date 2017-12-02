@@ -64,12 +64,12 @@ public:
 	}
 	inline ~bDouble() {
 		int i=-1;
-		for (int j=0;j<instances.size();j++)
+		for (int j=0;j<(int)instances.size();j++)
 				if (instances[j] == this) {
 					i=j;
 				 	break;
 			 	}
-		if (i<0) throw std::runtime_error( "Lost bDouble instance from tracking list" );
+		if (i<0)/*throw*/ std::runtime_error( "Lost bDouble instance from tracking list" );
 		else instances.erase(instances.begin()+i);
 		//std::cout << "[bDouble] deleted " << i << " (now " << instances.size() << ")" << std::endl;
 	}
@@ -84,23 +84,72 @@ public:
 		return (int)value;
 	}*/
 	bDouble& operator=(const bDouble&);
-	template <typename T> bDouble& operator=(T);
+	
+	template <typename T> 
+	bDouble& operator=(T d)
+	{
+	try  {this->target = validate(static_cast<double>(d)); }catch(...){throw;}
+	return *this;
+	}
+	
 	bDouble& operator+=(const bDouble&);
-	template <typename T> bDouble& operator+=(T);
+	
+	template <typename T> bDouble& operator+=(T d)
+	{
+	try {this->target = validate (this->target + static_cast<double>(d));} catch(...){throw;}
+	return *this;
+	}
+	
 	bDouble& operator-=(const bDouble&);
-	template <typename T> bDouble& operator-=(T);
+	
+	template <typename T> bDouble& operator-=(T d)
+	{
+	try{this->target = validate(this->target- static_cast<double>(d));}catch(...){throw;}
+	return *this;
+	}
+	
 	bDouble& operator*=(const bDouble&);
-	template <typename T> bDouble& operator*=(T);
+	
+	template <typename T> bDouble& operator*=(T d)
+	{
+	try{this->target = validate(this->target * static_cast<double>(d));}catch(...){throw;}
+	return *this;
+	}
+
 	bDouble& operator/=(const bDouble&);
-	template <typename T> bDouble& operator/=(T);
+	
+	template <typename T> bDouble& operator/=(T d)
+	{
+	try{this->target = validate(this->target / static_cast<double>(d));}catch(...){throw;}
+	return *this;
+	}
+	
 	bDouble operator+(const bDouble&);
-	template <typename T> bDouble operator+(T);
+	
+	template <typename T> bDouble operator+(T d)
+	{
+	try{return bDouble(this->min, this->max,validate(this->target + static_cast<double>(d)),this->value,this->speed); }catch(...){throw;}
+	}
+
 	bDouble operator-(const bDouble&);
-	template <typename T> bDouble operator-(T);
+	
+	template <typename T> bDouble operator-(T d)
+	{
+	try{ return bDouble(this->min, this->max,validate(this->target - static_cast<double>(d) ),this->value,this->speed);}catch(...){throw;}
+	}
 	bDouble operator*(const bDouble&);
-	template <typename T> bDouble operator*(T);
+
+	template <typename T> bDouble operator*(T d)
+	{
+	try{return bDouble(this->min, this->max,validate(this->target * static_cast<double>(d)),this->value, this->speed ); }catch(...){throw;}
+	}
+
 	bDouble operator/(const bDouble&);
-	template <typename T> bDouble operator/(T);
+	
+	template <typename T> bDouble operator/(T d)
+	{
+	try{return bDouble(this->min,this->max, validate(this->target / static_cast<double>(d) ),this->value,this->speed ); }catch(...){throw;}
+	}
 
 	//template <typename T> bDouble operator+(T a, const bDouble& b);
 	//template <typename T> bDouble operator-(T a, const bDouble& b);
@@ -163,7 +212,7 @@ public:
 		}
 	}
 	static void inline tick(int ms) {
-		for (int i=0; i<instances.size(); i++)
+		for (int i=0; i<(int)instances.size(); i++)
 				instances[i]->t(ms);
 	}
 	

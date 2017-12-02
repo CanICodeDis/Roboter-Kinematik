@@ -11,66 +11,38 @@ bDouble& bDouble::operator=(const bDouble& other) {
 	speed = other.speed;
 	return *this;
 }
-template <typename T> bDouble& bDouble::operator=(T d) {
-	try { this->target = validate(static_cast<double>(d)); } catch(...) { throw; }
-	return *this;
-}
 bDouble& bDouble::operator+=(const bDouble& other) {
 	try { this->target = validate(this->target + other.value); } catch(...) { throw; }
-	return *this;
-}
-template <typename T> bDouble& bDouble::operator+=(T d) {
-	try { this->target = validate(this->target + static_cast<double>(d)); } catch(...) { throw; }
 	return *this;
 }
 bDouble& bDouble::operator-=(const bDouble& other) {
 	try { this->target = validate(this->target - other.value); } catch(...) { throw; }
 	return *this;
 }
-template <typename T> bDouble& bDouble::operator-=(T d) {
-	try { this->target = validate(this->target - static_cast<double>(d)); } catch(...) { throw; }
-	return *this;
-}
 bDouble& bDouble::operator*=(const bDouble& other) {
 	try { this->target = validate(this->target * other.value); } catch(...) { throw; }
 	return *this;
 }
-template <typename T> bDouble& bDouble::operator*=(T d) {
-	try { this->target = validate(this->target * static_cast<double>(d)); } catch(...) { throw; }
-	return *this;
-}
+
 bDouble& bDouble::operator/=(const bDouble& other) {
 	try { this->target = validate(this->target / other.value); } catch(...) { throw; }
-	return *this;
-}
-template <typename T> bDouble& bDouble::operator/=(T d) {
-	try { this->target = validate(this->target / static_cast<double>(d)); } catch(...) { throw; }
 	return *this;
 }
 
 bDouble bDouble::operator+(const bDouble& other) {
 	try { return bDouble(this->min, this->max, validate(this->target + other.value), this->value, this->speed); } catch(...) { throw; }
 }
-template <typename T> bDouble bDouble::operator+(T d) {
-	try { return bDouble(this->min, this->max, validate(this->target + static_cast<double>(d)), this->value, this->speed); } catch(...) { throw; }
-}
+
 bDouble bDouble::operator-(const bDouble& other) {
 	try { return bDouble(this->min, this->max, validate(this->target - other.value), this->value, this->speed); } catch(...) { throw; }
 }
-template <typename T> bDouble bDouble::operator-(T d) {
-	try { return bDouble(this->min, this->max, validate(this->target - static_cast<double>(d)), this->value, this->speed); } catch(...) { throw; }
-}
+
 bDouble bDouble::operator*(const bDouble& other) {
 	try { return bDouble(this->min, this->max, validate(this->target * other.value), this->value, this->speed); } catch(...) { throw; }
 }
-template <typename T> bDouble bDouble::operator*(T d) {
-	try { return bDouble(this->min, this->max, validate(this->target * static_cast<double>(d)), this->value, this->speed); } catch(...) { throw; }
-}
+
 bDouble bDouble::operator/(const bDouble& other) {
 	try { return bDouble(this->min, this->max, validate(this->target / other.value), this->value, this->speed); } catch(...) { throw; }
-}
-template <typename T> bDouble bDouble::operator/(T d) {
-	try { return bDouble(this->min, this->max, validate(this->target / static_cast<double>(d)), this->value, this->speed); } catch(...) { throw; }
 }
 
 /*template <typename T> bDouble bDouble::operator+(T a, const bDouble& b) {
