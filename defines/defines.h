@@ -9,7 +9,7 @@
 #define SCREEN_HEIGHT 480
 
 //DO NOT CHANGE ANYTHING BELOW
-#define _DEG2RAD(a) a * M_PI / 180
+#define _DEG2RAD(a) ((a) * M_PI / 180.0)
 #define rethrow catch(...) { throw; }
 
 #endif
