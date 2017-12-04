@@ -11,11 +11,12 @@ sPoint* Camera::transform( const arma::Col<double>& aVector ) {
 		sxp = (wposc[0]/(cx*wposc[1]) +0.5);
  		syp = 1-(wposc[2]/(cx*wposc[1]) +0.5);
 	//}
+	/*
 	std::cout << aVector[0]<<","<<aVector[1]<<","<<aVector[2]<<
 					"->"<<wposc[0]<<","<<wposc[1]<<","<<wposc[2]<< 
 					" CF"<<cx<<
 					" %P:"<<sxp<<";"<<syp<<std::endl;
-	
+	*/
 	return new sPoint(
 			int(sxp*SCREEN_WIDTH),
 			int(syp*SCREEN_HEIGHT),
@@ -59,7 +60,7 @@ Camera& Camera::updateT() {
 	colT(1) = y;
 	colT(2) = z;
 
-	std::cout<<matR<<colT<<std::endl;
+	//std::cout<<matR<<colT<<std::endl;
 
 	return *this;
 }

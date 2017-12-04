@@ -40,7 +40,6 @@ arma::Col<double> pZ = arma::Col<double>(3);
 int main() {
 
 	cam.setAngleYaw(0.0).setAnglePitch(-10.0).setDist(5.0).updateT();
-	std::cout<< cam.getT() << std::endl;
 	p1(0)=0.0;
 	p1(1)=0.0;
 	p1(2)=0.0;
@@ -53,10 +52,6 @@ int main() {
 	pZ(0)=0.0;
 	pZ(1)=0.0;
 	pZ(2)=1.0;
-	//sPoint point1 = cam.getScreenPoint(p1);
-	//sPoint point2 = cam.getScreenPoint(p2);
-	//std::cout<< p << std::endl << point.X() <<";"<< point.Y() <<" D"<< point.Depth() << std::endl;
-	//cam.clear();
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
 		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() ); 
@@ -130,11 +125,13 @@ void render() {
 	sPoint spX = cam.getScreenPoint(pX);
 	sPoint spY = cam.getScreenPoint(pY);
 	sPoint spZ = cam.getScreenPoint(pZ);
+	/*
 	std::cout << deg << "deg" << frameTime << "m  " << 
 					sp1.X() << ";" << sp1.Y() << ";" << sp1.Depth() << ", " << 
 					spX.X() << ";" << spX.Y() << ";" << spX.Depth() << ", " << 
 					spY.X() << ";" << spY.Y() << ";" << spY.Depth() << ", " << 
 					spZ.X() << ";" << spZ.Y() << ";" << spZ.Depth()  << std::endl;
+					*/
 	SDL_SetRenderDrawColor(renderer,  50, 100, 255, 128);
 	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spX.X(), spX.Y() );
 	SDL_SetRenderDrawColor(renderer, 255, 200,  50, 128);
