@@ -9,15 +9,11 @@
 #include "../bdouble/BoundDouble.h"
 #include "../defines/defines.h"
 #include "../gelenk/gelenk.h"
+#include "../roboter6/roboter6.h"
 
-class Robot {
-public:
-	std::vector<gelenk> joints;
-//	std::vector<Vertex> vertices;
-//	std::vector<Polygon> polygons;
-	Robot(const char* MODEL_FILE);
-	inline ~Robot() {}
-};
+namespace ModelLoader {
+	void loadFile(const char* MODEL_FILE, roboter6& roboter);
+}
 
 /* __MODEL_ROBOT_H__ */
 #endif

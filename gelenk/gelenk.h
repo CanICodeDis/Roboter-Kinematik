@@ -14,55 +14,38 @@ class gelenk
 		int n;
 		// @ n: Nummer des Gelenks im Arm
 
-		double alpha, r;
-		bDouble theta, h;
-		// @ theta: Rotation der (n-1)ten Z-Achse ausgehend von
-		// der (n-1)ten X-Achse
-		// @ alpha: Winkel zwischen der nten Z-Achse und der (n-1)ten
-		// Z-Achse um die nte X-Achse
-		// @ h: Abstand des Gelenks entlang der (n-1)ten Z-Achse
-		// @ r: Abstand des Gelenks entlang der nten X-Achse
 		trmat Transform;
 		// @ Transform: Transformationsmatrix T(n-1)n
 		double l;
 		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments	
 		
 	public:
+		double alpha;
+		// @ alpha: Winkel zwischen der nten Z-Achse und der (n-1)ten
+		// Z-Achse um die nte X-Achse
+	 	
+		double	r;
+		// @ r: Abstand des Gelenks entlang der nten X-Achse
+		
+		bDouble theta;
+		// @ theta: Rotation der (n-1)ten Z-Achse ausgehend von
+		// der (n-1)ten X-Achse
+	 	
+		bDouble h;
+		// @ h: Abstand des Gelenks entlang der (n-1)ten Z-Achse
+		
 		gelenk ();
 		// Gelenk 0
+		
 		gelenk (const int an);
 		// Gelenk 1 bis n
+		
 		~gelenk()=default;
-	//	gelenk (gelenk&) = delete;
+		//	gelenk (gelenk&) = delete;
+		
 		//----Gelenknummer----------------
 		int nummer () {return n;}
-		//----Gelenkbegrenzungen----------
-		void minThetaIs (const double aMinTheta);
-		void maxThetaIs (const double aMaxTheta);
-		void minHIs (const double aMinD);
-		void maxHIs (const double aMaxD);
-		//----Direkte Kinematik-----------
-		void thetaIs (const double atheta);
-		//legt den Gelenkwinkel theta fest
-		// @ param atheta: setzt den Gelekwinkel
-		//  theta fest
-		double giveTheta (void) {return theta.getTarget();}
-		// gibt den Gelenkwinkel Theta in DEG zurück
-		void alphaIs (const double aalpha);
-		// legt die Orientierung zwischen der nten
-		// und der (n-1)ten Drehachse entlang der nten
-		// X-Achse fest
-		double giveAlpha (void) {return alpha;}
-		void hIs (const double ad);
-		// setzt den Abstand des Koordinatenursprungs zum
-		// vorigen Koordinatenursprung
-		// entlang der (n-1)ten Z-Achse fest
-		double giveH (void) {return h.getTarget();}
-		void rIs (const double ar);
-		// setzt den Abstand des Koordinatenursprungs zum
-		// vorigen Koordinatenursprung
-		// entlang der n-ten X-Achse
-           	double giveR(void) {return r;} 
+		
 		void makeTargetTransformMatrix();
 		double validateRotation();
 		Col<double> translation();

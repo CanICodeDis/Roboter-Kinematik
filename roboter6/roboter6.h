@@ -4,6 +4,7 @@
 #include"../Transformation/Transformation.h"
 #include"../gelenk/gelenk.h"
 #include<vector>
+#include<stdexcept>
 #include<unordered_map>
 using namespace std;
 
@@ -20,10 +21,11 @@ class roboter6
 
 	public:
 
-	roboter6 (const symtype target);
+	roboter6 (const simtype target);
 	roboter6();
 	~roboter6()=default;
 	
+	gelenk& getGelenk(int n);
 	void buildRobot();
 	void BasKin1 ();
 	void BasKin2 ();

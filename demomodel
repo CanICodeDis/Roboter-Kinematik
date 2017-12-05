@@ -1,0 +1,9 @@
+ROBMDL BETA 1.0
+BEGIN ROBOT 0
+ BEGIN JOINT 1
+  Theta -90.0 90.0 0 10
+  TransZ -90.0 90.0 0 10
+  Alpha 0
+  TransX 10
+ END JOINT
+END ROBOT

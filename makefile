@@ -6,7 +6,7 @@ SRCS := Executable.cpp \
     defines/defines.h defines/defines.cpp \
     Transformation/Transformation.h Transformation/Transformation.cpp \
     bdouble/BoundDouble.h bdouble/BoundDouble.cpp \
-		camera/camera.h camera/camera.cpp camera/visualization.h camera/visualization.cpp \:w
+		camera/camera.h camera/camera.cpp camera/visualization.h camera/visualization.cpp \
 		model/robot.h model/robot.cpp \
     gelenk/gelenk.h gelenk/gelenk.cpp \
     Transformation/Transformation.h Transformation/Transformation.cpp \

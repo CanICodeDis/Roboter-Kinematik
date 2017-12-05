@@ -7,12 +7,26 @@
 
 SDL_sem* running;
 
+roboter6 roboter;
+
 void handleConsoleInput();
 	fd_set readfds;
 	fd_set savefds;
 	struct timeval timeout;
 
-int main() {
+int main(int argc, char** argv) {
+	
+	if (argc != 1) {
+		std::cout << "Please specify a target model to load!";
+		return 1;
+	}
+	try {
+		ModelLoader::loadFile(argv[0], roboter);
+	} catch (std::runtime_error e) {
+		std::cout << "Error while loading model: " << e.what();
+		return 1;
+	}
+
 	//block that allows to check for available data more reliably than peek()==EOF
 	FD_ZERO(&readfds);
 	FD_SET(STDIN_FILENO, &readfds);

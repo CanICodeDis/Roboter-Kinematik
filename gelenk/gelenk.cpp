@@ -10,62 +10,10 @@ gelenk::gelenk(const int an):Transform(an)
 	n = an;
 }
 
-//--------------THETA------------------------------
-//-------------------------------------------------
-void gelenk::minThetaIs (const double aMinTheta)
-	{
-	theta.setMin(aMinTheta);
-	}
-void gelenk::thetaIs(const double atheta)
-{
-	theta=atheta;
-}
-void gelenk::maxThetaIs(const double aMaxTheta)
-	{
-	theta.setMax(aMaxTheta);
-	}
-
-//------------ALPHA--------------------------------
-//-------------------------------------------------
-
-void gelenk::alphaIs(const double aalpha)
-{
-	alpha=aalpha;
-}
-
-
-//---------D---------------------------------------
-//-------------------------------------------------
-void gelenk::minHIs (const double aMinH)
-	{
-	h.setMin(aMinH);
-}	
-
-void gelenk::hIs (const double aH)
-{
-	h=aH;
-}
-
-void gelenk::maxHIs (const double aMaxH)
-	{
-	h.setMax(aMaxH);
-	}
-
-//---------R---------------------------------------
-//-------------------------------------------------
-
-
-void gelenk::rIs (const double aR)
-{
-	r=aR;
-}
-
-
-
 void gelenk::makeTargetTransformMatrix()
 	{
 	Mat<double> T12 (4,4);
-	T12=Transform.transform(theta.getTarget(),alpha, h.getTarget(),r);
+	T12=Transform.transform(theta.getTarget(), alpha, h.getTarget(), r);
 	std::cout<<T12<<endl;
 	}
 

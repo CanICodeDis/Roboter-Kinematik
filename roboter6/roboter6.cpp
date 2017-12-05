@@ -11,6 +11,11 @@ roboter6::roboter6(const simtype aTarget)
 		}
 	}
 
+gelenk& roboter6::getGelenk(int n) {
+	if (n<1 || n>6) throw std::range_error( "Kein Gelenk mit dieser Nummer verfügbar!" );
+	return gelenke.at(n);
+}
+
 void roboter6::BasKin1()
 	{
 	if (! isBuilt)
