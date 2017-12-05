@@ -3,31 +3,33 @@
 #include<armadillo>
 #include<math.h>
 #include"../defines/defines.h"
-#include"../gelenk/gelenk.h"
+#include"../bdouble/BoundDouble.h"
 
 using namespace arma;
 class trmat
 {
 	private:
 		Mat<double> Transform;
-		int ausgangssystem, eingangssystem;
+		int eingangssystem, ausgangssystem;
 	public:
-		trmat (gelenk& gelenk);
+		trmat (const Mat<double>, const int ausgang, const int eingang);
+		trmat(int nummer);
 		trmat();
 		trmat(trmat& aTrmatNach, trmat& aTrmatVor);
 		~trmat()=default;
 
 		Mat<double> rotation();
-		bool checkRotation();
+		double validateRotation();
 		Col<double> translation();
-
-		trmat operator * (trmat& aVor);
-		Mat<double> transform (gelenk& );
-
-
-
 		
+		//trmat operator = (trmat);
+		trmat operator -();
+		Col<double> operator * (Col<double>&);
+		trmat operator * (trmat& aVor);
 
+		Mat<double> transform (double aTheta, double aL, double aAlpha, double aR);
+		Mat<double> giveTransform();
+		//void setTransformationInWorld(Mat<double> aTransW,int nummer);
 };
 
 
