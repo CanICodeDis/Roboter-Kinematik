@@ -1,18 +1,13 @@
 #include "gelenk.h"
 
-gelenk::gelenk(): origin(3), eMatrix(3,3)
+gelenk::gelenk():Transform(0)
 {
 	n = 0;
-	isTransformValid = false;
-	origin = { 0, 0, 0 };
-	eMatrix.eye();
 }
 
-gelenk::gelenk(const int an): origin(3), eMatrix(3,3)
+gelenk::gelenk(const int an):Transform(an)
 {
 	n = an;
-	isTransformValid=false;
-
 }
 
 //--------------THETA------------------------------
@@ -23,7 +18,6 @@ void gelenk::minThetaIs (const double aMinTheta)
 	}
 void gelenk::thetaIs(const double atheta)
 {
-	isTransformValid=false;
 	theta=atheta;
 }
 void gelenk::maxThetaIs(const double aMaxTheta)
@@ -33,67 +27,75 @@ void gelenk::maxThetaIs(const double aMaxTheta)
 
 //------------ALPHA--------------------------------
 //-------------------------------------------------
-void gelenk::minAlphaIs(const double aMinAlpha)
-	{ 
-	alpha.setMin(aMinAlpha);
-	}
 
 void gelenk::alphaIs(const double aalpha)
 {
-	isTransformValid = false;
 	alpha=aalpha;
 }
 
-void gelenk::maxAlphaIs(const double aMaxAlpha)
-	{
-	alpha.setMax(aMaxAlpha);
-	}
 
 //---------D---------------------------------------
 //-------------------------------------------------
-void gelenk::minDis (const double aMinD)
+void gelenk::minHIs (const double aMinH)
 	{
-	d.setMin(aMinD);
+	h.setMin(aMinH);
 }	
 
-void gelenk::dIs (const double ad)
+void gelenk::hIs (const double aH)
 {
-	isTransformValid=false;
-	d=ad;
+	h=aH;
 }
 
-void gelenk::maxDis (const double aMaxD)
+void gelenk::maxHIs (const double aMaxH)
 	{
-	d.setMax(aMaxD);
+	h.setMax(aMaxH);
 	}
 
 //---------R---------------------------------------
 //-------------------------------------------------
 
-void gelenk::minRis (const double aMinR)
-	{
-	r.setMin(aMinR);
-	}
 
-void gelenk::rIs (const double ar)
+void gelenk::rIs (const double aR)
 {
-	isTransformValid=false;
-	r=ar;
+	r=aR;
 }
 
-void gelenk::maxRis(const double aMaxR)
+
+
+void gelenk::makeTargetTransformMatrix()
 	{
-	r.setMax(aMaxR);
+	Mat<double> T12 (4,4);
+	T12=Transform.transform(theta.getTarget(),alpha, h.getTarget(),r);
+	std::cout<<T12<<endl;
 	}
 
-Col<double> gelenk::posInWorld(Mat<double> aTran)
+double gelenk::validateRotation()
 	{
-	return origin;
+	return Transform.validateRotation();
 	}
 
-Mat<double> gelenk::baseInWorld()
+Col<double> gelenk::translation()
 	{
-	return eMatrix;
+	return Transform.translation();
 	}
 
+Mat<double> gelenk::rotation()
+	{
+	return Transform.rotation();
+	}
 
+trmat gelenk::getTransformation()
+	{
+	return Transform;
+	}
+void gelenk::calcLaenge()
+	{
+	Col<double> v1;
+	v1= this->translation();
+	l=sqrt(v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]);
+	}
+
+double gelenk::laenge()
+	{
+	return l;
+	}

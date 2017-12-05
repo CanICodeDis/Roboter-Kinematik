@@ -5,6 +5,7 @@
 #include<math.h>
 #include"../defines/defines.h"
 #include"../bdouble/BoundDouble.h"
+#include"../Transformation/Transformation.h"
 using namespace std;
 using namespace arma;
 class gelenk
@@ -13,25 +14,18 @@ class gelenk
 		int n;
 		// @ n: Nummer des Gelenks im Arm
 
-		Col<double> origin;
-		// @ ?0: Postition des Gelenkkoordinatensystems in Weltkoordinaten
-		// notwendig für Visualisierung
-
-		Mat<double> eMatrix;
-		//Orientierug der Achsen des Gelenkkoordinatensystems in Weltkoordinaten
-
-		double l;
-		// @ l: Abstand des Gelenks zum nächsten Gelenk
-
-		bDouble theta, alpha , d, r;
+		double alpha, r;
+		bDouble theta, h;
 		// @ theta: Rotation der (n-1)ten Z-Achse ausgehend von
 		// der (n-1)ten X-Achse
 		// @ alpha: Winkel zwischen der nten Z-Achse und der (n-1)ten
 		// Z-Achse um die nte X-Achse
-		// @ d: Abstand des Gelenks entlang der (n-1)ten Z-Achse
+		// @ h: Abstand des Gelenks entlang der (n-1)ten Z-Achse
 		// @ r: Abstand des Gelenks entlang der nten X-Achse
-		bool isTransformValid;
-
+		trmat Transform;
+		// @ Transform: Transformationsmatrix T(n-1)n
+		double l;
+		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments	
 		
 	public:
 		gelenk ();
@@ -39,18 +33,14 @@ class gelenk
 		gelenk (const int an);
 		// Gelenk 1 bis n
 		~gelenk()=default;
-		gelenk (gelenk&) = delete;
+	//	gelenk (gelenk&) = delete;
 		//----Gelenknummer----------------
 		int nummer () {return n;}
 		//----Gelenkbegrenzungen----------
 		void minThetaIs (const double aMinTheta);
 		void maxThetaIs (const double aMaxTheta);
-		void minAlphaIs (const double aMinAlpha);
-		void maxAlphaIs (const double aMaxAlpha);
-		void minRis (const double aMinR);
-		void maxRis (const double aMaxR);
-		void minDis (const double aMinD);
-		void maxDis (const double aMaxD);
+		void minHIs (const double aMinD);
+		void maxHIs (const double aMaxD);
 		//----Direkte Kinematik-----------
 		void thetaIs (const double atheta);
 		//legt den Gelenkwinkel theta fest
@@ -62,33 +52,24 @@ class gelenk
 		// legt die Orientierung zwischen der nten
 		// und der (n-1)ten Drehachse entlang der nten
 		// X-Achse fest
-		double giveAlpha (void) {return alpha.getTarget();}
-		void dIs (const double ad);
+		double giveAlpha (void) {return alpha;}
+		void hIs (const double ad);
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
 		// entlang der (n-1)ten Z-Achse fest
-		double giveD (void) {return d.getTarget();}
+		double giveH (void) {return h.getTarget();}
 		void rIs (const double ar);
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
 		// entlang der n-ten X-Achse
-           	double giveR(void) {return r.getTarget();} 
-		//----Position und Orientierung in S0--------------
-		Col<double> posInWorld(Mat<double>);
-		// gibt die Position in Weltkoordinaten in einem
-		// Spaltenvektor ( x ; y ; z ) aus
-		
-		Mat<double> baseInWorld(void);
-		// gibt die Basisvektoren in Weltkoordinaten aus
-		
-		//----Position im Koordinatensystem des vorigen Gelenks-------
-		Col<double> posInParent (const gelenk& parent);
-		// gibt die Position des Ursprung Koordinatensystems im Eltern-Koordinatensystems aus
-		
-		Mat<double> baseInParent (const gelenk& parent);
-		//gibt die Orientierung der Basisvektoren im Eltern-Koordinatensystem aus
-
-
+           	double giveR(void) {return r;} 
+		void makeTargetTransformMatrix();
+		double validateRotation();
+		Col<double> translation();
+		Mat<double> rotation();
+		trmat getTransformation();
+		void calcLaenge();
+		double laenge();
 };
 
 #endif
