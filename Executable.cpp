@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <string>
 
-
-#define VERSION "BETA 1.0"
-
 SDL_sem* running;
 
 void handleConsoleInput();

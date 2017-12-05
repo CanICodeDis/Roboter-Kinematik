@@ -3,6 +3,8 @@
 
 #include <math.h>
 
+#define VERSION "BETA 1.0"
+
 // THIS SECTION IS THE USER CONFIGURATION
 #define TFONT_NAME "assets/fonts/DejaVuSansMono.ttf"
 #define SCREEN_WIDTH 720
