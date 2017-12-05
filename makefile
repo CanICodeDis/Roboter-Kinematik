@@ -7,7 +7,6 @@ SRCS := Executable.cpp \
     Transformation/Transformation.h Transformation/Transformation.cpp \
     bdouble/BoundDouble.h bdouble/BoundDouble.cpp \
 		camera/camera.h camera/camera.cpp camera/visualization.h camera/visualization.cpp \
-		model/robot.h model/robot.cpp \
     gelenk/gelenk.h gelenk/gelenk.cpp \
     Transformation/Transformation.h Transformation/Transformation.cpp \
     roboter6/roboter6.h roboter6/roboter6.cpp

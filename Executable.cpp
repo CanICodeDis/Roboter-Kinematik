@@ -21,11 +21,13 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	try {
-		ModelLoader::loadFile(argv[0], roboter);
+		roboter = roboter6(argv[0]);
 	} catch (std::runtime_error e) {
 		std::cout << "Error while loading model: " << e.what();
 		return 1;
 	}
+	gelenk g1 = roboter.getGelenk(1);
+	std::cout << "Gelenk " << g1.nummer() << ": T " << g1.giveTheta() << " R " << g1.giveR() << " H " << g1.giveH() << " A " << g1.giveAlpha() << std::endl;
 
 	//block that allows to check for available data more reliably than peek()==EOF
 	FD_ZERO(&readfds);

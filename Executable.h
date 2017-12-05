@@ -15,7 +15,6 @@ extern SDL_sem* running;
 #include "roboter6/roboter6.h"
 #include "gelenk/gelenk.h"
 #include "Transformation/Transformation.h"
-#include "model/loader.h"
 
 //the target robot we will play with
 extern roboter6 roboter;

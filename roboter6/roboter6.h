@@ -18,15 +18,15 @@ class roboter6
 	trmat Endeffektor;
 	simtype target;
 	bool isBuilt;
+	void abn(std::ifstream& s, std::string& a, std::string& b, int& n);
 
 	public:
-
+	roboter6 (const char* MODEL_FILE);
 	roboter6 (const simtype target);
 	roboter6();
 	~roboter6()=default;
 	
 	gelenk& getGelenk(int n);
-	void buildRobot();
 	void BasKin1 ();
 	void BasKin2 ();
 	void BasKin3 ();
