@@ -76,7 +76,7 @@ class gelenk
 		void calcLaenge();
 		double laenge();
 
-		gelenk& operator = (gelenk&);
+		gelenk operator = (const gelenk&);
 };
 
 #endif

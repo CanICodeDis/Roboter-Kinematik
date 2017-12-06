@@ -235,16 +235,3 @@ void roboter6::BasKin4()
 	{
 	}
 
-gelenk& roboter6::getGelenk (const int aNummer)
-	{
-	vector<gelenk>::iterator it;
-	for (it=gelenke.begin(); it != gelenke.end() ; it++)
-		{
-		if (it->nummer() == aNummer)
-			{
-			return *it;
-			break;
-			}
-		}
-	//throw ;
-	}
