@@ -4,6 +4,8 @@ BIN := robot.out
 # source files
 SRCS := Executable.cpp \
     defines/defines.h defines/defines.cpp \
+		threadqueue/ThreadMessageQueue.h threadqueue/ThreadMessageQueue.cpp \
+    defines/parse_error.h defines/parse_error.cpp \
     Transformation/Transformation.h Transformation/Transformation.cpp \
     bdouble/BoundDouble.h bdouble/BoundDouble.cpp \
 		camera/camera.h camera/camera.cpp camera/visualization.h camera/visualization.cpp \

@@ -15,7 +15,6 @@ class gelenk
 		// @ n: Nummer des Gelenks im Arm
 
 		double alpha, r;
-		bDouble theta, h;
 		// @ theta: Rotation der (n-1)ten Z-Achse ausgehend von
 		// der (n-1)ten X-Achse
 		// @ alpha: Winkel zwischen der nten Z-Achse und der (n-1)ten
@@ -25,15 +24,15 @@ class gelenk
 		trmat Transform;
 		// @ Transform: Transformationsmatrix T(n-1)n
 		double l;
-		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments	
-		
+		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments
+
 	public:
+		bDouble theta, h;
 		gelenk ();
 		// Gelenk 0
 		gelenk (const int an);
+		gelenk (const int an, bDouble theta, bDouble h, double r, double alpha);
 		// Gelenk 1 bis n
-		gelenk (const int an, bDouble& aTheta, bDouble& aH, double aR, double aAlpha);
-		//
 		~gelenk()=default;
 	//	gelenk (gelenk&) = delete;
 		//----Gelenknummer----------------
@@ -41,10 +40,8 @@ class gelenk
 		//----Gelenkbegrenzungen----------
 		void minThetaIs (const double aMinTheta);
 		void maxThetaIs (const double aMaxTheta);
-		void speedThetaIs (const double aSpeed);
 		void minHIs (const double aMinD);
 		void maxHIs (const double aMaxD);
-		void speedHIs (const double aSpeed);
 		//----Direkte Kinematik-----------
 		void thetaIs (const double atheta);
 		//legt den Gelenkwinkel theta fest
@@ -66,14 +63,19 @@ class gelenk
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
 		// entlang der n-ten X-Achse
-           	double giveR(void) {return r;} 
+           	double giveR(void) {return r;}
+
 		void makeTargetTransformMatrix();
+		void makeValueTransformMatrix();
 		double validateRotation();
 		Col<double> translation();
 		Mat<double> rotation();
+
 		trmat getTransformation();
 		void calcLaenge();
 		double laenge();
+		
+		void operator = (gelenk);
 };
 
 #endif

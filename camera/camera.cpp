@@ -72,8 +72,10 @@ Camera& Camera::setDist( double aDist ) {
 }
 Camera& Camera::setAnglePitch( double aAngle ) {
 	angleX = aAngle;
-	while( angleX >= 180.0 ) angleX-=360.0;
-	while( angleX < -180.0) angleX+=360.0;
+//	while( angleX >= 180.0 ) angleX-=360.0;
+//	while( angleX < -180.0) angleX+=360.0;
+	if (angleX < -45.0) angleX = -45.0;
+	if (angleX > 45.0) angleX = 45.0;
 	return *this;
 }
 Camera& Camera::setAngleYaw( double aAngle ) {

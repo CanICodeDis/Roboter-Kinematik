@@ -21,13 +21,10 @@ void printText(char*, int x, int y); //paint a text at x,y within a rect of w,h
 
 // == ROBOT RELATED STUFF ==
 Camera cam;
-arma::Col<double> p1 = arma::Col<double>(3);
-arma::Col<double> pX = arma::Col<double>(3);
-arma::Col<double> pY = arma::Col<double>(3);
-arma::Col<double> pZ = arma::Col<double>(3);
 
 int thVisual(void* data) {
 
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 	cam.setAngleYaw(0.0).setAnglePitch(-10.0).setDist(10.0).updateT();
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
@@ -61,9 +58,9 @@ int thVisual(void* data) {
 		start+=frameTime;
 	}
 
-//	TTF_Quit();
-//	SDL_DestroyRenderer(renderer);
-//	SDL_DestroyWindow(window);
+	TTF_Quit();
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
 }
 
 void sdlEventHandler() {
@@ -71,20 +68,26 @@ void sdlEventHandler() {
 	while( SDL_PollEvent( &e ) != 0 ) { //handle all events happening since the last main-loop
 		if( e.type == SDL_QUIT ) {
 			SDL_SemPost(running);
+		} else if (e.type == SDL_MOUSEMOTION) {
+			if (e.motion.state == SDL_BUTTON_LMASK) {
+				double dy = 0.01*e.motion.yrel;
+				double dx = 0.01*e.motion.xrel;
+				cam.setAngleYaw(cam.getAngleYaw()+dx)
+					.setAnglePitch(cam.getAnglePitch()+dy)
+					.updateT();
+			} else if (e.motion.state == SDL_BUTTON_RMASK) {
+				double d = 0.1*e.motion.yrel;
+				cam.setDist(cam.getDist()+d)
+					.updateT();
+			}
 		}
 	}
 }
 
-double deg=0.0, deg2=0.0;
 void think(int ms) {
-	//360/1000
-	deg+=0.036*ms;
-	while (deg>=360.0) deg-=360.0;
-	deg2+=0.01*ms;
-	while (deg2>=360.0) deg2-=360.0;
-	cam.setAngleYaw(deg).setAnglePitch(cos(_DEG2RAD(deg2))*5.0+10.0).updateT();
-
-	//if (frameTime<5) SDL_Delay(5-frameTime); //frame-limiting, because cinematic fps ;)
+	toVis.pop();
+	bDouble::tick(ms);
+	if (frameTime<1) SDL_Delay(1); //frame-limiting, because cinematic fps ;)
 }
 
 void render() {
@@ -92,30 +95,25 @@ void render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
 	SDL_RenderFillRect(renderer, &screenSurface->clip_rect);
 //	SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0x00, 0x00, 0x00) );
-	char smsg[64]={0};
+	char smsg[128]={0};
 	sprintf(smsg, "DT: %ims", frameTime);
 	printText(smsg, 4, 4);
 	sprintf(smsg, "Yaw: %.2f  Pitch %.2f  Dist: %.2f", cam.getAngleYaw(), cam.getAnglePitch(), cam.getDist());
 	printText(smsg, 4, 20);
 
-	sPoint sp1 = cam.getScreenPoint(p1);
-	sPoint spX = cam.getScreenPoint(pX);
-	sPoint spY = cam.getScreenPoint(pY);
-	sPoint spZ = cam.getScreenPoint(pZ);
-	/*
-	std::cout << deg << "deg" << frameTime << "m  " << 
-					sp1.X() << ";" << sp1.Y() << ";" << sp1.Depth() << ", " << 
-					spX.X() << ";" << spX.Y() << ";" << spX.Depth() << ", " << 
-					spY.X() << ";" << spY.Y() << ";" << spY.Depth() << ", " << 
-					spZ.X() << ";" << spZ.Y() << ";" << spZ.Depth()  << std::endl;
-					*/
+	for (int i=1; i<7; i++) {
+		gelenk g = roboter->getGelenk(i);
+		sprintf(smsg, "Gelenk %i: % 3.2f, % 3.2f, % 3.2f, % 3.2f", g.nummer(), g.giveTheta(), g.giveH(), g.giveR(), g.giveAlpha());
+		printText(smsg, 4, 4+16*(i+1) );
+	}
+/*
 	SDL_SetRenderDrawColor(renderer,  50, 100, 255, 128);
 	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spX.X(), spX.Y() );
 	SDL_SetRenderDrawColor(renderer, 255, 200,  50, 128);
 	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spY.X(), spY.Y() );
 	SDL_SetRenderDrawColor(renderer, 255,  50, 100, 128);
 	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spZ.X(), spZ.Y() );
-
+*/
 	cam.clear();
 }
 

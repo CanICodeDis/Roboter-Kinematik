@@ -202,7 +202,8 @@ public:
 
 	inline void t(int ms) {
 		double dif = target-value;
-		double dv = speed*(double)ms/1000.0;
+		double dv = speed*double(ms)/1000.0;
+
 		if (dif < 0) {
 			if (-dif <= dv) value = target;
 			else value -= dv;
@@ -212,8 +213,9 @@ public:
 		}
 	}
 	static void inline tick(int ms) {
-		for (int i=0; i<(int)instances.size(); i++)
-				instances[i]->t(ms);
+		for (int i=0; i<(int)instances.size(); i++) {
+			instances[i]->t(ms);
+		}
 	}
 	
 };

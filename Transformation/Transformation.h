@@ -22,7 +22,7 @@ class trmat
 		double validateRotation();
 		Col<double> translation();
 		
-		//trmat operator = (trmat);
+		void operator = (trmat);
 		trmat operator -();
 		Col<double> operator * (Col<double>&);
 		trmat operator * (trmat& aVor);
