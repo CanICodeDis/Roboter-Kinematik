@@ -8,13 +8,13 @@
 #include"../Transformation/Transformation.h"
 using namespace std;
 using namespace arma;
+
 class gelenk
 {
 	private:
 		int n;
 		// @ n: Nummer des Gelenks im Arm
 
-		double alpha, r;
 		// @ theta: Rotation der (n-1)ten Z-Achse ausgehend von
 		// der (n-1)ten X-Achse
 		// @ alpha: Winkel zwischen der nten Z-Achse und der (n-1)ten
@@ -27,6 +27,7 @@ class gelenk
 		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments
 
 	public:
+		double alpha, r;
 		bDouble theta, h;
 		gelenk ();
 		// Gelenk 0
@@ -34,7 +35,7 @@ class gelenk
 		gelenk (const int an, bDouble theta, bDouble h, double r, double alpha);
 		// Gelenk 1 bis n
 		~gelenk()=default;
-	//	gelenk (gelenk&) = delete;
+		gelenk (const gelenk&);
 		//----Gelenknummer----------------
 		int nummer () {return n;}
 		//----Gelenkbegrenzungen----------
@@ -74,8 +75,8 @@ class gelenk
 		trmat getTransformation();
 		void calcLaenge();
 		double laenge();
-		
-		void operator = (gelenk);
+
+		gelenk& operator = (gelenk&);
 };
 
 #endif

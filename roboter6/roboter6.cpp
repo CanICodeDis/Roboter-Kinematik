@@ -183,10 +183,10 @@ void roboter6::BasKin2()
 		r[i] = sqrt( ( (p[i] - l2 ) * (p[i]- l3 ) * (p[i] - ref ) ) /p[i] );
 		alpha[i] = 2 * atan ( r[i] / ( p[i] - l2 ) );
 		beta[i] = 2 * atan ( r[i] / ( p[i] - l3 )  );
-		theta2BasKin2 [2*i] = _RAD2DEG( phi[i] + beta[i] );
-		theta2BasKin2 [2*i+1] = _RAD2DEG( phi[i] - beta[i] );
-		theta3BasKin2 [2*i] = _RAD2DEG( - (alpha[i] + beta[i]) );
-		theta3BasKin2 [2*i+1] = _RAD2DEG( alpha[i] + beta[i] );
+		theta2BasKin2 [2*i] =_RAD2DEG( phi[i] + beta[i]);
+		theta2BasKin2 [2*i+1] = _RAD2DEG(phi[i] - beta[i]);
+		theta3BasKin2 [2*i] = _RAD2DEG(-(alpha[i] + beta[i]));
+		theta3BasKin2 [2*i+1] = _RAD2DEG((alpha[i] + beta[i]));
 		}
 	//mit ein bisschen Hirnschmalz hätte man sich jetzt einen besseren Algorhitmus überlegen können
 
@@ -213,11 +213,10 @@ void roboter6::BasKin2()
 	gelenke[3].makeTargetTransformMatrix();
 	systemTransform["32_1"] = gelenke[3].getTransformation();
 
-
 	gelenke[3].thetaIs(theta3BasKin2[1]);
 	gelenke[3].makeTargetTransformMatrix();
 	systemTransform["32_2"] = gelenke[3].getTransformation();
-
+  
 	gelenke[3].thetaIs(theta3BasKin2[2]);
 	gelenke[3].makeTargetTransformMatrix();
 	systemTransform["32_3"] = gelenke[3].getTransformation();
@@ -229,10 +228,23 @@ void roboter6::BasKin2()
 
 void roboter6::BasKin3()
 	{
-	
+  
 	}
 
 void roboter6::BasKin4()
 	{
-	
+	}
+
+gelenk& roboter6::getGelenk (const int aNummer)
+	{
+	vector<gelenk>::iterator it;
+	for (it=gelenke.begin(); it != gelenke.end() ; it++)
+		{
+		if (it->nummer() == aNummer)
+			{
+			return *it;
+			break;
+			}
+		}
+	//throw ;
 	}

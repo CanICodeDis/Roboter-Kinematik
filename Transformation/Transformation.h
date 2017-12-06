@@ -15,6 +15,7 @@ class trmat
 		trmat (const Mat<double>, const int ausgang, const int eingang);
 		trmat(int nummer);
 		trmat();
+		trmat (const trmat&);
 		trmat(trmat& aTrmatNach, trmat& aTrmatVor);
 		~trmat()=default;
 

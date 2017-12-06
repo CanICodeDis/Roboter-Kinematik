@@ -15,5 +15,4 @@
 #define _DEG2RAD(a) ((a) * M_PI / 180.0)
 #define _RAD2DEG(a) ((a) * (180.0/M_PI))
 #define rethrow catch(...) { throw; }
-
 #endif
