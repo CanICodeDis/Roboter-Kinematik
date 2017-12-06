@@ -15,7 +15,8 @@ eingangssystem = nummer;
 
 
 trmat::trmat():Transform(4,4)
-{}
+	{
+	}
 
 trmat trmat::operator * (trmat& aVor)
 {
@@ -29,6 +30,13 @@ produkt.ausgangssystem=this->ausgangssystem;
 produkt.eingangssystem= aVor.eingangssystem;
 produkt.Transform= this->Transform * aVor.Transform;
 return produkt;
+}
+
+trmat::trmat (const trmat& other):Transform(4,4)
+{
+	eingangssystem= other.eingangssystem;
+	ausgangssystem= other.ausgangssystem;
+	Transform = other.Transform;
 }
 
 Mat<double> trmat::transform (double aTheta, double aAlpha, double aH, double aR)
@@ -82,7 +90,6 @@ void trmat::operator = (trmat aTrans)
 	this->ausgangssystem = aTrans.ausgangssystem;
 	this->eingangssystem = aTrans.eingangssystem;
 	this->Transform = aTrans.Transform;
-	//return temp;
 	}
 
 trmat trmat::operator -()

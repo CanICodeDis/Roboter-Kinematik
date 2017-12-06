@@ -86,10 +86,10 @@ void roboter6::BasKin2()
 		r[i] = sqrt( ( (p[i] - l2 ) * (p[i]- l3 ) * (p[i] - ref ) ) /p[i] );
 		alpha[i] = 2 * atan ( r[i] / ( p[i] - l2 ) );
 		beta[i] = 2 * atan ( r[i] / ( p[i] - l3 )  );
-		theta2BasKin2 [2*i] = phi[i] + beta[i];
-		theta2BasKin2 [2*i+1] = phi[i] - beta[i];
-		theta3BasKin2 [2*i] = - (alpha[i] + beta[i]);
-		theta3BasKin2 [2*i+1] = (alpha[i] + beta[i]);
+		theta2BasKin2 [2*i] =_RAD2DEG( phi[i] + beta[i]);
+		theta2BasKin2 [2*i+1] = _RAD2DEG(phi[i] - beta[i]);
+		theta3BasKin2 [2*i] = _RAD2DEG(-(alpha[i] + beta[i]));
+		theta3BasKin2 [2*i+1] = _RAD2DEG((alpha[i] + beta[i]));
 		}
 	//mit ein bisschen Hirnschmalz hätte man sich jetzt einen besseren Algorhitmus überlegen können
 

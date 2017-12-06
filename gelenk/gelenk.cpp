@@ -22,6 +22,14 @@ gelenk::gelenk(const int an):Transform(an)
 	n = an;
 }
 
+gelenk::gelenk (const gelenk& other):theta(other.theta),h(other.h)
+	{
+	r= other.r;
+	alpha= other.r;
+	Transform= other.Transform;
+	n= other.n;
+	}
+
 //--------------THETA------------------------------
 //-------------------------------------------------
 void gelenk::minThetaIs (const double aMinTheta)
@@ -113,7 +121,7 @@ double gelenk::laenge()
 	return l;
 	}
 
-void gelenk::operator = (gelenk other)
+gelenk& gelenk::operator = (gelenk& other)
 	{
 	this->n = other.n;
 	this->Transform = other.Transform;
@@ -122,4 +130,5 @@ void gelenk::operator = (gelenk other)
 	this->r = other.r;
 	this->alpha = other.alpha;
 	this->l = other.l;
+	return *this;
 	}

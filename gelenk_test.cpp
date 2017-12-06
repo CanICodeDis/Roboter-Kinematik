@@ -21,6 +21,7 @@ int main()
 	s2.hIs(65.0);
 	s2.thetaIs(13.0);
 	s2.makeTargetTransformMatrix();
+	gelenk s3 = s2;
 	cout<<"Determinante: "<<s2.validateRotation()<<endl;
 	cout<<s2.translation()<<endl<<s2.rotation();	
 	s2.calcLaenge();
