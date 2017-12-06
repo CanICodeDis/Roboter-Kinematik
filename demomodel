@@ -1,0 +1,46 @@
+ROBMDL BETA 1.0
+BEGIN COMMENT
+  DH Parameter eines KUKA KR 152-2
+  Übernommen aus der Praktikumsarbeit von Janko Härtig unter
+  http://www.easy-rob.com/uploads/media/bps-inverse-kinematik-jhaertig.pdf
+
+  Mal schauen, ob was raus kommt, das einigermaßen hin geht ;D 
+END COMMENT
+BEGIN ROBOT 1
+ BEGIN JOINT 1
+  Theta -180 180 0 10
+  TransZ 865 865 865 0
+  TransX 410
+  Alpha 90
+ END JOINT
+ BEGIN JOINT 2
+  Theta -180 180 90 10
+  TransZ 0 0 0 0
+  TransX 1000
+  Alpha 0
+ END JOINT
+ BEGIN JOINT 3
+  Theta -180 180 0 10
+  TransZ 0 0 0 0
+  TransX 45
+  Alpha 90
+ END JOINT
+ BEGIN JOINT 4
+  Theta -180 180 0 10
+  TransZ 1000 1000 1000 0
+  TransX 0
+  Alpha -90
+ END JOINT
+ BEGIN JOINT 5
+  Theta -180 180 0 10
+  TransZ 0 0 0 0
+  TransX 0
+  Alpha -90
+ END JOINT
+ BEGIN JOINT 6
+  Theta -180 180 0 10
+  TransZ 210 210 210 0
+  TransX 0
+  Alpha 0
+ END JOINT
+END ROBOT

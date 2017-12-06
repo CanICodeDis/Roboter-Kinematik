@@ -1,163 +1,164 @@
-#include <armadillo>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <stdio.h>
 #include <iostream>
-#include <iomanip>
-#include <ctime>
-#include "defines/defines.h"
-#include "camera/camera.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
+#include "Executable.h"
 
-void sdlEventHandler();
-void think(int dt); //dt is time since last frame in ms
-void render();
-void swapBuffers();
+SDL_sem* running;
 
-//The main loop will not exit until this variable is set to false:
-bool running = true;
+roboter6* roboter;
 
-//used for timings, frametime since last frame, do not write!
-int frameTime=0;
+ThreadMessageQueue toVis;
+ThreadMessageQueue toCli;
 
-//The window we'll be rendering to 
-SDL_Window* window = NULL; 
-SDL_Renderer* renderer = NULL;
+void handleConsoleInput();
+fd_set readfds;
+fd_set savefds;
+struct timeval timeout;
 
-//The surface contained by the window 
-SDL_Surface* screenSurface = NULL; 
-
-TTF_Font* _tfont; //The default font to draw with in printText
-SDL_Color _tcolor = {255, 255, 255, 255}; //default text color for printText (format: rgba)
-void printText(char*, int x, int y); //paint a text at x,y within a rect of w,h
-
-// == ROBOT RELATED STUFF ==
-Camera cam;
-arma::Col<double> p1 = arma::Col<double>(3);
-arma::Col<double> pX = arma::Col<double>(3);
-arma::Col<double> pY = arma::Col<double>(3);
-arma::Col<double> pZ = arma::Col<double>(3);
-
-int main() {
-
-	cam.setAngleYaw(0.0).setAnglePitch(-10.0).setDist(5.0).updateT();
-	p1(0)=0.0;
-	p1(1)=0.0;
-	p1(2)=0.0;
-	pX(0)=1.0;
-	pX(1)=0.0;
-	pX(2)=0.0;
-	pY(0)=0.0;
-	pY(1)=1.0;
-	pY(2)=0.0;
-	pZ(0)=0.0;
-	pZ(1)=0.0;
-	pZ(2)=1.0;
-
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() ); 
-		return 1;
-	}
-
-	SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer);
-	if( window == NULL || renderer == NULL ) {
-		printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
-		return 1;
-	}
+int main(int argc, char** argv) {
 	
-	screenSurface = SDL_GetWindowSurface( window );
+	//arg 0 is always the executed application
+	if (argc != 2) {
+		std::cout << "Please specify a target model to load!" << std::endl;
+		return 1;
+	}
+	try {
+		roboter = new roboter6(argv[1]);
+	} catch (std::runtime_error e) {
+		std::cout << "Error while loading model: " << e.what() << std::endl;
+		return 1;
+	}
+	gelenk g1 = roboter->getGelenk(1);
+	std::cout << "Gelenk " << g1.nummer() << ": T " << g1.giveTheta() << " R " << g1.giveR() << " H " << g1.giveH() << " A " << g1.giveAlpha() << std::endl;
 
-	TTF_Init();
-	_tfont = TTF_OpenFont(TFONT_NAME, 16); //The default font to draw with in printText
-	if( _tfont == NULL ) {
-		printf( "Could not find font! (%s)\n", TFONT_NAME );
+	//block that allows to check for available data more reliably than peek()==EOF
+	FD_ZERO(&readfds);
+	FD_SET(STDIN_FILENO, &readfds);
+	savefds = readfds;
+	timeout.tv_sec=0;
+	timeout.tv_usec=0;
+
+	running = SDL_CreateSemaphore(0);
+	if (running == NULL) {
+		std::cout<< "Failed to create running semaphore: " << SDL_GetError() << std::endl;
 		return 1;
 	}
 
-	int start = SDL_GetTicks();
-	for(;running;) {
-		sdlEventHandler();
-		think(frameTime);
-		render();
-		swapBuffers();
-
-		frameTime = SDL_GetTicks()-start;
-		start+=frameTime;
+	SDL_Thread* vThread = SDL_CreateThread(thVisual, "RenderThread", (void*)NULL);
+	if (vThread == NULL) {
+		std::cout<< "Failed to create render thread: " << SDL_GetError() << std::endl;
+		return 1;
 	}
+//	SDL_DetachThread(vThread);
 
-	TTF_Quit();
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-}
-
-void sdlEventHandler() {
-	SDL_Event e;
-	while( SDL_PollEvent( &e ) != 0 ) { //handle all events happening since the last main-loop
-		if( e.type == SDL_QUIT ) {
-			running = false;
+	//check if input from terminal is available before reading/parsing command in callback, that would block
+	//this is neccessary to recognice, if the running semaphore wants us to quit execution
+	while (SDL_SemValue(running)==0) {
+		readfds = savefds;
+		if (select(1, &readfds, NULL, NULL, &timeout)) {
+			handleConsoleInput();
 		}
+		SDL_Delay(15);
 	}
+
+	SDL_WaitThread(vThread, NULL);
+	SDL_Quit();
+	free(roboter);
 }
 
-double deg=0.0, deg2=0.0;
-void think(int ms) {
-	//360/1000
-	deg+=0.036*ms;
-	while (deg>=360.0) deg-=360.0;
-	deg2+=0.01*ms;
-	while (deg2>=360.0) deg2-=360.0;
-	cam.setAngleYaw(deg).setAnglePitch(cos(_DEG2RAD(deg2))*5.0+10.0).updateT();
-	SDL_Delay(5);
+bool nextConsoleToken(int& token) {
+	char c;
+	std::cin.get(c);
+	if (c == ' ') {
+		std::cin >> token;
+		return true;
+	}
+	return false;
 }
-
-void render() {
-	//SDL_RenderClear(renderer);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
-	SDL_RenderFillRect(renderer, &screenSurface->clip_rect);
-//	SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0x00, 0x00, 0x00) );
-	char smsg[64]={0};
-	sprintf(smsg, "DT: %ims", frameTime);
-	printText(smsg, 4, 4);
-	sprintf(smsg, "Yaw: %.2f  Pitch %.2f  Dist: %.2f", cam.getAngleYaw(), cam.getAnglePitch(), cam.getDist());
-	printText(smsg, 4, 20);
-
-	sPoint sp1 = cam.getScreenPoint(p1);
-	sPoint spX = cam.getScreenPoint(pX);
-	sPoint spY = cam.getScreenPoint(pY);
-	sPoint spZ = cam.getScreenPoint(pZ);
-	/*
-	std::cout << deg << "deg" << frameTime << "m  " << 
-					sp1.X() << ";" << sp1.Y() << ";" << sp1.Depth() << ", " << 
-					spX.X() << ";" << spX.Y() << ";" << spX.Depth() << ", " << 
-					spY.X() << ";" << spY.Y() << ";" << spY.Depth() << ", " << 
-					spZ.X() << ";" << spZ.Y() << ";" << spZ.Depth()  << std::endl;
-					*/
-	SDL_SetRenderDrawColor(renderer,  50, 100, 255, 128);
-	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spX.X(), spX.Y() );
-	SDL_SetRenderDrawColor(renderer, 255, 200,  50, 128);
-	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spY.X(), spY.Y() );
-	SDL_SetRenderDrawColor(renderer, 255,  50, 100, 128);
-	SDL_RenderDrawLine( renderer, sp1.X(), sp1.Y(), spZ.X(), spZ.Y() );
-
-	cam.clear();
+bool nextConsoleToken(double& token) {
+	char c;
+	std::cin.get(c);
+	if (c == ' ') {
+		std::cin >> token;
+		return true;
+	}
+	return false;
 }
-
-void swapBuffers() {
-//	SDL_UpdateWindowSurface( window );
-	SDL_RenderPresent( renderer );
+bool nextConsoleToken(std::string& token) {
+	char c;
+	std::cin.get(c);
+	if (c == ' ') {
+		std::cin >> token;
+		return true;
+	}
+	return false;
 }
+void handleConsoleInput() {
+	std::string token;
+	std::cin >> token;
 
-void printText(char* msg, int x, int y) {
-	SDL_Surface* surfMsg = TTF_RenderText_Solid(_tfont, msg, _tcolor);
-	SDL_Texture* message = SDL_CreateTextureFromSurface(renderer, surfMsg);
-	SDL_Rect msRect;
-	msRect.x=x;
-	msRect.y=y;
-	msRect.w=surfMsg->w;
-	msRect.h=surfMsg->h;
-	SDL_RenderCopy(renderer, message, NULL, &msRect);
-//	free(message);
-//	free(surfMsg);
-	SDL_DestroyTexture(message);
-	SDL_FreeSurface(surfMsg);
+	if (token == "quit") {
+		std::cout << "Good bye!\n";
+		SDL_SemPost(running);
+	} else if (token == "help") {
+
+		if (nextConsoleToken(token)) {
+		
+			if (token == "quit") {
+				std::cout << "  == Help 'quit' ==\nThis command quits the application\n -] Params:\n  NONE\n";
+			} else if (token == "set") {
+				std::cout << "  == Help 'set' ==\nThis command is used to live manipulate the robot\nWe would like to apologize for the lack of graphical manipulation methods\n -] Params: <JOINT> <PARAM> <SUBPA> <VALUE>\n  JOINT - The joint index to manipulate\n  PARAM - The name of the DH param to change. One of: Theta, TransZ, TransX, Alpha.\n  SUBPA - The name of a sub parameter to change. Theta ans TransZ support Min, Max and Speed in addition to Value accepted for all parameters.\n  VALUE - The new value to set this parameter to.";
+			} else {
+				std::cout << "  == Help '" << token << "' ==\nUnknown command\n";
+			}
+		
+		} else {
+			std::cout << " =] Robo-Kinematik [= \n"
+				<< "Brought to you by Michael and Stefan\n"
+				<< "Powered By SDL and Armadillo\n"
+				<< "You are running version " << VERSION << " \\o/\n"
+				<< "\n  Available commands:\n"
+				<< "quit, set"
+				<< "\n Use help <command> for more information\n";
+		}
+
+	} else if (token == "set") {
+		int g;
+		std::string p,s;
+		double v;
+		ParamTypeTM n;
+		ParamSubTypeTM m;
+
+		if (nextConsoleToken(g) && nextConsoleToken(p) && nextConsoleToken(s) && nextConsoleToken(v)) {
+			if (p=="Theta") n = Theta;
+			else if (p=="TransZ" || p=="H") n = TransZ;
+			else if (p=="TransX" || p=="R") n = TransX;
+			else if (p=="Alpha") n = Alpha;
+			else throw runtime_error((string("No such parameter ")+p).c_str());
+
+			if (s=="Min") m = Min;
+			else if (s=="Max") m = Max;
+			else if (s=="Speed") m = Speed;
+			else if (s=="Value" || s=="Target") m = Value;
+			else throw runtime_error((string("No such sub-parameter ")+s).c_str());
+
+			try {
+				toVis.push(new SetParamTM(g,n,m,v));
+			} rethrow
+
+			std::cout << "Setting " << s << " for joint " << g << ' ' << p << " to " << v << std::endl;
+		}
+	} else {
+		std::cout << "Command not recognized! Try 'help' :)" << std::endl;
+	}
+
+	std::cout << std::endl; //a bit of bottom spacing
+
+	readfds = savefds;
+	if (select(1, &readfds, NULL, NULL, &timeout)) {
+		std::cin.ignore(1000, '\n');
+	}
+
 }

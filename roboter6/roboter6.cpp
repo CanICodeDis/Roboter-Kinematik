@@ -11,6 +11,103 @@ roboter6::roboter6(const simtype aTarget):posHW(4)
 		}
 	}
 
+void roboter6::abn(std::ifstream& s, std::string& a, std::string& b, int& n, int& lc)
+{
+	lc++;
+	s >> a >> b;
+	if (s.peek()==' ') s >> n; else n = -1;
+}
+
+roboter6::roboter6(const char* MODEL_FILE):posHW(4)
+{
+	std::string FILE_HEADER = "ROBMDL ";
+	FILE_HEADER += VERSION;
+
+	//fill vector with temporary elements to allow out of order joints in the model
+	for (int i=0; i<7; i++)
+		gelenke.push_back(gelenk(i));
+
+	try {
+		std::ifstream fin (MODEL_FILE, std::ifstream::in);
+		std::string line,a,b; //block tokens
+		int n; //blok param
+		std::getline(fin, line);
+		int linecounter=1;
+
+		if (line != FILE_HEADER) {
+			throw std::runtime_error ( string("Invalid model header for ")+MODEL_FILE );
+		}
+
+		while (fin.good()) {
+			abn(fin, a, b, n, linecounter);
+			if (a == "BEGIN") {
+				if (b == "ROBOT") {
+					if (n<1 || n>2) 
+						throw parse_error( "ROBOTER requires a simtype of {1=Value;2=Target}", linecounter);
+					target = simtype(n-1);
+	
+					abn(fin, a, b, n, linecounter);
+					while (a != "END" && b != "ROBOT") {
+						
+						if (a == "BEGIN" && b == "JOINT") {
+							int geli = n; //gelenk index
+							if (geli <1 || geli>6)
+								throw parse_error( "JOINT requires a index between [1; 6]", linecounter );
+							double min,max,val,spd; //parsed param args
+							std::string target; //target
+						  char valid=0;
+							//all variable for the joint
+							bDouble gat, gah;
+							double gar, gaa;
+
+							//fill four arguments
+							for (int i = 0; i < 4; i++) {
+								linecounter++;
+								fin >> target >> min;
+								if (target == "Alpha") {
+									valid |= 0b00000001; 
+									gaa = min;
+								} else if (target == "TransX") {
+									valid |= 0b00000010; 
+									gar = min;
+								} else if (target == "Theta") {
+									valid |= 0b00000100; 
+									fin >> max >> val >> spd;
+									gat = bDouble(min, max, val, spd);
+								} else if (target == "TransZ") {
+									valid |= 0b00001000; 
+									fin >> max >> val >> spd;
+									gah = bDouble(min, max, val, spd);
+								} else throw parse_error( "Invalid value target in JOINT block", linecounter );
+							
+							}
+							abn(fin, a, b, n, linecounter);
+							if (a != "END" || b != "JOINT")
+								throw parse_error( "JOINT does not end after values", linecounter );
+							if (valid != 0b00001111)
+								throw parse_error( "JOINT did not get all params: Alpha(1), Theta(4), TransZ(4), TransX(1)", linecounter );
+							gelenke.at(geli) = gelenk(geli, gat, gah, gar, gaa);
+						} else throw new parse_error( "Invalid block within ROBOT, begin JOINT or end ROBOT", linecounter );
+	
+						abn(fin, a, b, n, linecounter);
+					}
+				} else if (b == "COMMENT") {
+					std::string line="";
+					while (line != "END COMMENT") {
+						std::getline(fin, line);
+						linecounter++;
+					}
+				}	else throw parse_error( "Unknown begin block", linecounter );
+			} else if (!fin.eof()) throw parse_error( "At root level a block begin is expected", linecounter );
+		}
+	} rethrow
+}
+
+gelenk& roboter6::getGelenk(int n) {
+	if (n<1 || n>6) throw std::range_error( "Kein Gelenk mit dieser Nummer verfügbar!" );
+	return gelenke.at(n);
+}
+
 void roboter6::BasKin1()
 	{
 	double lEE2HW;
@@ -115,12 +212,11 @@ void roboter6::BasKin2()
 	gelenke[3].thetaIs(theta3BasKin2[0]);
 	gelenke[3].makeTargetTransformMatrix();
 	systemTransform["32_1"] = gelenke[3].getTransformation();
-	
 
 	gelenke[3].thetaIs(theta3BasKin2[1]);
 	gelenke[3].makeTargetTransformMatrix();
 	systemTransform["32_2"] = gelenke[3].getTransformation();
-	
+  
 	gelenke[3].thetaIs(theta3BasKin2[2]);
 	gelenke[3].makeTargetTransformMatrix();
 	systemTransform["32_3"] = gelenke[3].getTransformation();
@@ -132,12 +228,11 @@ void roboter6::BasKin2()
 
 void roboter6::BasKin3()
 	{
-
+  
 	}
 
 void roboter6::BasKin4()
 	{
-
 	}
 
 gelenk& roboter6::getGelenk (const int aNummer)

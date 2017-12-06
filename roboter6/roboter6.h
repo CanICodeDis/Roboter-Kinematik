@@ -3,6 +3,7 @@
 
 #include"../Transformation/Transformation.h"
 #include"../gelenk/gelenk.h"
+#include"../defines/parse_error.h"
 #include<vector>
 #include<unordered_map>
 #include<cmath>
@@ -24,9 +25,13 @@ class roboter6
 	double theta1BasKin1 [2];
 	double theta2BasKin2 [4];
 	double theta3BasKin2 [4];
+
+	void abn(std::ifstream& s, std::string& a, std::string& b, int& n, int& ln);
+
 	public:
 
 	roboter6 (const simtype target);
+	roboter6 (const char* MODEL_FILE);
 	roboter6();
 	~roboter6()=default;
 	
