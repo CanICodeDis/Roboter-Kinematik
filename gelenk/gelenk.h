@@ -25,12 +25,13 @@ class gelenk
 		trmat Transform;
 		// @ Transform: Transformationsmatrix T(n-1)n
 		double l;
-		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments	
-		
+		// @ l:Abstand zu vorigem Gelenk = Länge des Armsegments
+
 	public:
 		gelenk ();
 		// Gelenk 0
 		gelenk (const int an);
+		gelenk (const int an, bDouble theta, bDouble h, double r, double alpha);
 		// Gelenk 1 bis n
 		~gelenk()=default;
 	//	gelenk (gelenk&) = delete;
@@ -62,14 +63,19 @@ class gelenk
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
 		// entlang der n-ten X-Achse
-           	double giveR(void) {return r;} 
+           	double giveR(void) {return r;}
+
 		void makeTargetTransformMatrix();
+		void makeValueTransformMatrix();
 		double validateRotation();
 		Col<double> translation();
 		Mat<double> rotation();
+
 		trmat getTransformation();
 		void calcLaenge();
 		double laenge();
+		
+		void operator = (gelenk);
 };
 
 #endif

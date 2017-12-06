@@ -5,6 +5,7 @@
 #include"../gelenk/gelenk.h"
 #include<vector>
 #include<unordered_map>
+#include<cmath>
 using namespace std;
 
 enum simtype {value,target };
@@ -12,15 +13,20 @@ enum simtype {value,target };
 class roboter6
 {
 	private:
+
 	vector<gelenk> gelenke;
-	unordered_map<int,trmat> systemTransform;
+	Col<double> posHW;
+	vector<Col<double>> posS1;
+	unordered_map<string,trmat> systemTransform;
 	trmat Endeffektor;
 	simtype target;
-	bool isBuilt;
 
+	double theta1BasKin1 [2];
+	double theta2BasKin2 [4];
+	double theta3BasKin2 [4];
 	public:
 
-	roboter6 (const symtype target);
+	roboter6 (const simtype target);
 	roboter6();
 	~roboter6()=default;
 	
@@ -29,6 +35,10 @@ class roboter6
 	void BasKin2 ();
 	void BasKin3 ();
 	void BasKin4 ();
+
+	gelenk& getGelenk (const int aNummer);
+	
+
 };
 
 #endif

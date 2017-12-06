@@ -1,5 +1,17 @@
 #include "gelenk.h"
 
+//------------Konstruktoren------------------------
+
+gelenk::gelenk(const int an, bDouble aTheta, bDouble aH, double aR, double aAlpha)
+	{
+	n = an;
+	theta = aTheta;
+	h = aH;
+	r = aR;
+	alpha = aAlpha;
+	makeTargetTransformMatrix();
+	calcLaenge();
+	}
 gelenk::gelenk():Transform(0)
 {
 	n = 0;
@@ -64,11 +76,12 @@ void gelenk::rIs (const double aR)
 
 void gelenk::makeTargetTransformMatrix()
 	{
-	Mat<double> T12 (4,4);
-	T12=Transform.transform(theta.getTarget(),alpha, h.getTarget(),r);
-	std::cout<<T12<<endl;
+	Transform.transform(theta.getTarget(),alpha, h.getTarget(),r);
 	}
-
+void gelenk::makeValueTransformMatrix()
+	{
+	Transform.transform(theta,alpha,h,r);
+	}
 double gelenk::validateRotation()
 	{
 	return Transform.validateRotation();
@@ -98,4 +111,15 @@ void gelenk::calcLaenge()
 double gelenk::laenge()
 	{
 	return l;
+	}
+
+void gelenk::operator = (gelenk other)
+	{
+	this->n = other.n;
+	this->Transform = other.Transform;
+	this->theta = other.theta;
+	this->h = other.h;
+	this->r = other.r;
+	this->alpha = other.alpha;
+	this->l = other.l;
 	}

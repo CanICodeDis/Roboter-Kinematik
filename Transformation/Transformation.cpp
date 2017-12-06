@@ -73,20 +73,18 @@ Col<double> trmat::operator * (Col<double>& aPoint)
 	aPoint.resize(4);
 	aPoint[3]= 1;
 	result = Transform * aPoint;
-	aPoint.resize(3);
-	result.resize(3);
 	return result;
 	}
-/*
-trmat trmat::operator = (trmat aTrans)
+
+void trmat::operator = (trmat aTrans)
 	{
-	trmat temp;
-	temp.ausgangssystem = aTrans.ausgangssystem;
-	temp.eingangssystem = aTrans.eingangssystem;
-	temp.Transform = aTrans.Transform;
-	return temp;
+	//trmat temp;
+	this->ausgangssystem = aTrans.ausgangssystem;
+	this->eingangssystem = aTrans.eingangssystem;
+	this->Transform = aTrans.Transform;
+	//return temp;
 	}
-*/
+
 trmat trmat::operator -()
 	{
 	trmat temp;

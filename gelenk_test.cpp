@@ -11,7 +11,7 @@ int main()
 	gelenk s2(2);
 	Col<double> p1 (4);
 	Col<double> p2 (4);
-	p1 = {1 , 1 , 5};
+	p1 = {0 , 0 , 0 , 1};
 	s2.minThetaIs(0.0);
 	s2.maxThetaIs(90.0);
 	s2.alphaIs(52.0);
