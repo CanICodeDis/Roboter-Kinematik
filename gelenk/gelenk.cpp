@@ -122,9 +122,8 @@ double gelenk::laenge()
 	return l;
 	}
 
-gelenk gelenk::operator = (const gelenk& other)
+gelenk& gelenk::operator = (const gelenk& other)
 	{
-	gelenk temp;
 	this->n = other.n;
 	this->Transform = other.Transform;
 	this->theta = other.theta;
@@ -132,6 +131,5 @@ gelenk gelenk::operator = (const gelenk& other)
 	this->r = other.r;
 	this->alpha = other.alpha;
 	this->l = other.l;
-	temp = *this;
-	return temp;
+	return *this;
 	}

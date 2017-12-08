@@ -9,7 +9,7 @@ sPoint* Camera::transform( const arma::Col<double>& aVector ) {
 	//	syp = (-wuah[2]/cx +0.5);
 	//} else {
 		sxp = (wposc[0]/(cx*wposc[1]) +0.5);
- 		syp = 1-(wposc[2]/(cx*wposc[1]) +0.5);
+ 		syp = (wposc[2]/(cx*wposc[1]) +0.5);
 	//}
 	/*
 	std::cout << aVector[0]<<","<<aVector[1]<<","<<aVector[2]<<
@@ -29,7 +29,7 @@ Camera& Camera::updateT() {
 	//*///
 	double raY = _DEG2RAD(angleY);
 	double rld = _DEG2RAD(angleX); //angle we look down
-	double rlu = _DEG2RAD(90.0+angleX); //trinagle inner angle (90-angle we look down)
+	double rlu = _DEG2RAD(70.0+angleX); //trinagle inner angle (90-angle we look down)
 	double l = cos( rld ) * dist;
   x = cos( raY ) * l;
 	y = sin( raY ) * l;
@@ -45,7 +45,7 @@ Camera& Camera::updateT() {
 	//*///
 
 	double ca = cos(alpha), sa = sin(alpha), cb = cos(beta), sb = sin(beta);
-
+/*
 	matR(0,0) = ca;
 	matR(0,1) = sa;
 	matR(0,2) = 0.0;
@@ -55,6 +55,17 @@ Camera& Camera::updateT() {
 	matR(2,0) = sa*sb;
 	matR(2,1) = -ca*sb;
 	matR(2,2) = cb;
+*/
+	
+	matR(0,0) = -ca;
+	matR(0,1) = -sa;
+	matR(0,2) = 0.0;
+	matR(1,0) = -sa*cb;
+	matR(1,1) = ca*cb;
+	matR(1,2) = -sb;
+	matR(2,0) = sa*sb;
+	matR(2,1) = -ca*sb;
+	matR(2,2) = -cb;
 
 	colT(0) = x;
 	colT(1) = y;

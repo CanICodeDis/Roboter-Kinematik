@@ -39,7 +39,7 @@ public:
 };
 
 class Camera {
-	std::map<arma::Col<double>*, sPoint*> screenCache;
+	std::map<const arma::Col<double>*, sPoint*> screenCache;
 	double FOV, dist, angleY, angleX;
 	double cx; //korrecturfaktor
 
@@ -51,7 +51,6 @@ class Camera {
 	//be honkydory
 	arma::Mat<double> matR; //Rotational matrix
 	arma::Col<double> colT; //Trnaslation vector
-	sPoint* transform( const arma::Col<double>& aVector );
 public:
 	Camera ():dist(10.0), angleY(135.0), angleX(-10.0) {
 		matR = arma::Mat<double>(3,3);
@@ -97,13 +96,19 @@ public:
 	}
 	
 	inline void clear() {
-		for (std::map<arma::Col<double>*, sPoint*>::iterator it=screenCache.begin(); it!=screenCache.end(); ++it)
+		for (std::map<const arma::Col<double>*, sPoint*>::iterator it=screenCache.begin(); it!=screenCache.end(); ++it)
 			free(it->second);
 		screenCache.clear();
 	}
+
+	/** transform creates a one-time transformation. If you requre the same point multiple times (from the same col*) use getScreenPoint for a cache.
+	 * Please don't create your own point cache.
+	 * Also don't forget to clear the camera cache after drawing all points or changing them.
+	 */
+	sPoint* transform( const arma::Col<double>& aVector );
 	
-	inline sPoint& getScreenPoint(arma::Col<double>& aWorldPoint) {
-		std::map<arma::Col<double>*, sPoint*>::iterator it = screenCache.find( &aWorldPoint );
+	inline sPoint& getScreenPoint(const arma::Col<double>& aWorldPoint) {
+		std::map<const arma::Col<double>*, sPoint*>::iterator it = screenCache.find( &aWorldPoint );
 		if (it == screenCache.end()) {
 			sPoint* point = transform ( aWorldPoint );
 			screenCache[ &aWorldPoint ] = point;

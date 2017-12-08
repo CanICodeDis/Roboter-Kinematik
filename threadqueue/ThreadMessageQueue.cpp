@@ -8,38 +8,48 @@ void SetParamTM::handle() {
 			std::cout << "Theta ";
 			switch(s) {
 				case Min:
-					gel.minThetaIs(v);
+					roboter->getGelenk(g).theta.setMin(v);
 					break;
 				case Max:
-					gel.maxThetaIs(v);
+					roboter->getGelenk(g).theta.setMax(v);
 					break;
 				case Value:
-					gel.thetaIs(v);
+					if (roboter->getSimType() == simtype::value)
+						roboter->getGelenk(g).theta.setSoft(v);
+					else
+						roboter->getGelenk(g).theta.jump(v);
 					break;
-//				case Speed: g.speed
+				case Speed:
+					roboter->getGelenk(g).theta.setSpeed(v);
+					break;
 				default: break;
 			}
 		 	break;
 		case TransZ: 
 			switch(s) {
 				case Min:
-					gel.minHIs(v);
+					roboter->getGelenk(g).h.setMin(v);
 					break;
 				case Max:
-					gel.maxHIs(v);
+					roboter->getGelenk(g).h.setMax(v);
 					break;
 				case Value:
-					gel.hIs(v);
+					if (roboter->getSimType() == simtype::value)
+						roboter->getGelenk(g).h.setSoft(v);
+					else
+						roboter->getGelenk(g).h.jump(v);
 					break;
-//				case Speed: g.speed
+				case Speed:
+					roboter->getGelenk(g).h.setSpeed(v);
+					break;
 				default: break;
 			}
 		 	break;
 		case TransX:
-			gel.rIs(v);
+			roboter->getGelenk(g).r = v;
 			break;
 		case Alpha:
-			gel.alphaIs(v);
+			roboter->getGelenk(g).alpha = v;
 			break;
 		default: break;
 	}

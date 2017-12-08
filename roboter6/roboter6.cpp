@@ -69,7 +69,7 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 									gaa = min;
 								} else if (target == "TransX") {
 									valid |= 0b00000010; 
-									gar = min;
+									gar = min/1000.0;
 								} else if (target == "Theta") {
 									valid |= 0b00000100; 
 									fin >> max >> val >> spd;
@@ -77,7 +77,7 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 								} else if (target == "TransZ") {
 									valid |= 0b00001000; 
 									fin >> max >> val >> spd;
-									gah = bDouble(min, max, val, spd);
+									gah = bDouble(min/1000.0, max/1000.0, val/1000.0, spd/1000.0);
 								} else throw parse_error( "Invalid value target in JOINT block", linecounter );
 							
 							}

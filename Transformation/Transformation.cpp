@@ -108,7 +108,7 @@ Mat<double> trmat::rotation()
 
 Col<double> trmat::translation()
 	{
-	return Transform.col(3);
+	return Transform(span(0,2),3);
 	}
 
 double trmat::validateRotation()

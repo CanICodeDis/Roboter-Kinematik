@@ -48,7 +48,7 @@ class gelenk
 		//legt den Gelenkwinkel theta fest
 		// @ param atheta: setzt den Gelekwinkel
 		//  theta fest
-		double giveTheta (void) {return theta.getTarget();}
+		double giveTheta (void) {return theta;}
 		// gibt den Gelenkwinkel Theta in DEG zurück
 		void alphaIs (const double aalpha);
 		// legt die Orientierung zwischen der nten
@@ -59,7 +59,7 @@ class gelenk
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
 		// entlang der (n-1)ten Z-Achse fest
-		double giveH (void) {return h.getTarget();}
+		double giveH (void) {return h;}
 		void rIs (const double ar);
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
@@ -76,7 +76,7 @@ class gelenk
 		void calcLaenge();
 		double laenge();
 
-		gelenk operator = (const gelenk&);
+		gelenk& operator = (const gelenk&);
 };
 
 #endif

@@ -42,7 +42,10 @@ class roboter6
 	void BasKin4 ();
 
 	gelenk& getGelenk (const int aNummer);
-	
+
+	inline simtype getSimType() {
+		return target; 
+	}	
 
 };
 
