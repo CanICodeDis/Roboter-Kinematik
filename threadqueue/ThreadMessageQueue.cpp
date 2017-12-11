@@ -57,13 +57,13 @@ void SetParamTM::handle() {
 void SetEEinDH::handle() {
 	arma::Mat<double> matT(4,4);
 	trmat t06(matT, 0, 6);
-	trmat.transform(rz,tz,tx,rx);
+	t06.transform(rz,tz,tx,rx);
 	roboter->setEndEffektor(t06);
 	toCli.push(new RetrieveInverseOptions());
 }
 
 void SetEEinTR::handle() {
-	arma::Mat<double> matT(4,4,arma::fill:eye);
+	arma::Mat<double> matT(4,4,arma::fill::eye);
 	
 	double cy = cos(u), sy = sin(u), cp = cos(v), sp = sin(v), cr = cos(w), sr = sin(w);
 
@@ -105,9 +105,9 @@ void RetrieveInverseOptions::handle() {
 	char buffer[512];
 	for (int i=0; i<8; i++) {
 		sprintf(buffer, "%s%i) % 6.2f, % 6.2f, % 6.2f, % 6.2f, % 6.2f, % 6.2f%s", 
-			(valid[o]?"":"\033[1;31m"),
+			(valid[i]?"":"\033[1;31m"),
 			values[0][i], values[1][i], values[2][i], values[3][i], values[4][i], values[5][i],
-			(valid[o]?"":"\033[0m"));
+			(valid[i]?"":"\033[0m"));
 		std::cout << buffer << std::endl;
 	}
 

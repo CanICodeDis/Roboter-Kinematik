@@ -172,14 +172,14 @@ void handleConsoleInput() {
 		}
 	} else if (token == "movedh") {
 		double rz, tz, tx, rx;
-		if (nextConsoleToken(&rz) && nextConsoleToken(&tz) && nextConsoleToken(&tx) && nextConsoleToken(&rx) {
-			toVis.push(new SetEEinDH(rz,tz,tx,ry));
+		if (nextConsoleToken(rz) && nextConsoleToken(tz) && nextConsoleToken(tx) && nextConsoleToken(rx)) {
+			toVis.push(new SetEEinDH(rz,tz,tx,rx));
 		} else {
 			std::cout << "Missing arguments!" << std::endl;
 		}
 	} else if (token == "moveto") {
 		double x,y,z,u,v,w;
-		if (nextConsoleToken(&x) && nextConsoleToken(&y) && nextConsoleToken(&z) && nextConsoleToken(&u) && nextConsoleToken(&v) && nextConsoleToken(&w) {
+		if (nextConsoleToken(x) && nextConsoleToken(y) && nextConsoleToken(z) && nextConsoleToken(u) && nextConsoleToken(v) && nextConsoleToken(w)) {
 			toVis.push(new SetEEinTR(x,y,z,u,w,v));
 		} else {
 			std::cout << "Missing arguments!" << std::endl;

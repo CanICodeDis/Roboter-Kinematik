@@ -52,7 +52,7 @@ class roboter6
 	Mat<double> giveAnkleNRotationInWorld (const int ankle);
 	void calcWorldTransformations ();
 	void setEndEffektor (const trmat&);
-	void giveInverseOptions (double** theta);
+	void giveInverseOptions (double theta[6][8] );
 //	void sortPossibilities();
 	void updateMatrices();
 

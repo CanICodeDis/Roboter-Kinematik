@@ -1,10 +1,16 @@
 #ifndef __MESSAGEQUEUE_H__
 #define __MESSAGEQUEUE_H__
 
+#include <unistd.h>
+#include <cstdio>
 #include <SDL2/SDL.h>
 #include <queue>
 #include <stdexcept>
 #include "../gelenk/gelenk.h"
+#include "../roboter6/roboter6.h"
+#include "../Transformation/Transformation.h"
+
+extern roboter6* roboter;
 
 class AbstractThreadMessage {
 public:
@@ -37,7 +43,7 @@ public:
 			:rz(aRz),tz(aTz),tx(aTx),rx(aRx){
 	}
 	void handle();
-}
+};
 
 class SetEEinTR : public AbstractThreadMessage {
 	double x,y,z,u,v,w;
@@ -46,13 +52,13 @@ public:
 			:x(ax),y(ay),z(az),u(ayaw),v(apitch),w(aroll) {
 	}
 	void handle();
-}
+};
 
 class JumpRobotJoints : public AbstractThreadMessage {
 	double cfg[6][2];
 	int n;
 public:
-	inline JumpRobotJoints( double** v, int o, double* p ):n(o) {
+	inline JumpRobotJoints( double v [6][8], int o, double* p ):n(o) {
 		for (int i=0; i<6; i++) {
 			cfg[i][0] = p[i];
 			cfg[i][1] = v[i][n];
@@ -65,7 +71,7 @@ public:
 		}
 	}
 	void handle();
-}
+};
 
 class RetrieveInverseOptions : public AbstractThreadMessage {
 	double values [6][8];
@@ -77,7 +83,7 @@ public:
 			bool v = true; double det;
 			for (int i=0; i<6; i++) {
 				gelenk gel = roboter->getGelenk(i);
-				trmat	test = trmat.getTransformation();
+				trmat	test = gel.getTransformation();
 				test.transform(values[i][o], gel.giveH(), gel.giveR(), gel.giveAlpha());
 				det = test.validateRotation();
 				if (det <= 0.999 || det >= 1.001 ) {
@@ -88,7 +94,7 @@ public:
 		}
 	}
 	void handle();
-}
+};
 
 class ThreadMessageQueue {
 	SDL_mutex* mutex;

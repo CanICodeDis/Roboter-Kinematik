@@ -93,7 +93,7 @@ void sdlEventHandler() {
 void think(int ms) {
 	toVis.pop();
 	bDouble::tick(ms);
-	roboter->updateMatrices()
+	roboter->updateMatrices();
 //	roboter->getGelenk(1).makeValueTransformMatrix();
 }
 
@@ -142,7 +142,7 @@ void render() {
 	renderCoordSys(rot, point);
 	sPoint* spPre=cam.transform(point), spNext;
 
-	fot (int i=0; i<6; i++) {
+	for (int i=0; i<6; i++) {
 		point = roboter->getGelenk(i).getTransformation().translation().head(3);
 		rot = roboter->getGelenk(i).getTransformation().rotation();
 

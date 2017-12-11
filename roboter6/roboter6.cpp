@@ -345,7 +345,7 @@ void roboter6::setEndEffektor (const trmat& other)
 	{
 	Endeffektor = other;
 	}
-void roboter6::giveInverseOptions(double** aTheta)
+void roboter6::giveInverseOptions(double aTheta[6][8])
 	{
 	for (int y = 0 ; y < 6 ; y++)
 		for (int x = 0 ;x < 8 ; x++)
