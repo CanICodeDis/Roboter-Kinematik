@@ -1,6 +1,6 @@
 #include"roboter6.h"
 
-roboter6::roboter6(const simtype aTarget):posHW(4)
+roboter6::roboter6(const simtype aTarget):posHW(4),Endeffektor(4)
 	{
 	target = aTarget;
 	for (int i=0; i<7;i++)//element0 ist blind, aber trotzdem enthalten, damit wir
@@ -18,7 +18,7 @@ void roboter6::abn(std::ifstream& s, std::string& a, std::string& b, int& n, int
 	if (s.peek()==' ') s >> n; else n = -1;
 }
 
-roboter6::roboter6(const char* MODEL_FILE):posHW(4)
+roboter6::roboter6(const char* MODEL_FILE):posHW(4),Endeffektor(4)
 {
 	std::string FILE_HEADER = "ROBMDL ";
 	FILE_HEADER += VERSION;
@@ -42,13 +42,13 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 			abn(fin, a, b, n, linecounter);
 			if (a == "BEGIN") {
 				if (b == "ROBOT") {
-					if (n<1 || n>2) 
+					if (n<1 || n>2)
 						throw parse_error( "ROBOTER requires a simtype of {1=Value;2=Target}", linecounter);
 					target = simtype(n-1);
-	
+
 					abn(fin, a, b, n, linecounter);
 					while (a != "END" && b != "ROBOT") {
-						
+
 						if (a == "BEGIN" && b == "JOINT") {
 							int geli = n; //gelenk index
 							if (geli <1 || geli>6)
@@ -65,21 +65,21 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 								linecounter++;
 								fin >> target >> min;
 								if (target == "Alpha") {
-									valid |= 0b00000001; 
+									valid |= 0b00000001;
 									gaa = min;
 								} else if (target == "TransX") {
-									valid |= 0b00000010; 
+									valid |= 0b00000010;
 									gar = min;
 								} else if (target == "Theta") {
-									valid |= 0b00000100; 
+									valid |= 0b00000100;
 									fin >> max >> val >> spd;
 									gat = bDouble(min, max, val, spd);
 								} else if (target == "TransZ") {
-									valid |= 0b00001000; 
+									valid |= 0b00001000;
 									fin >> max >> val >> spd;
 									gah = bDouble(min, max, val, spd);
 								} else throw parse_error( "Invalid value target in JOINT block", linecounter );
-							
+
 							}
 							abn(fin, a, b, n, linecounter);
 							if (a != "END" || b != "JOINT")
@@ -88,7 +88,7 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 								throw parse_error( "JOINT did not get all params: Alpha(1), Theta(4), TransZ(4), TransX(1)", linecounter );
 							gelenke.at(geli) = gelenk(geli, gat, gah, gar, gaa);
 						} else throw new parse_error( "Invalid block within ROBOT, begin JOINT or end ROBOT", linecounter );
-	
+
 						abn(fin, a, b, n, linecounter);
 					}
 				} else if (b == "COMMENT") {
@@ -123,6 +123,11 @@ void roboter6::BasKin1()
 
 	theta1BasKin1[0] = _RAD2DEG(theta1BasKin1[0]);
 	theta1BasKin1[1] = _RAD2DEG(theta1BasKin1[1]);
+	for (int x= 0 ; x<4 ; x++)
+		{
+		theta[0][x] = theta1BasKin1[0];
+		theta[0][3+x] = theta1BasKin1[1];
+		}
 	}
 
 void roboter6::BasKin2()
@@ -150,16 +155,21 @@ void roboter6::BasKin2()
 		gelenke[1].makeTargetTransformMatrix();
 		if (i==0)
 			{
-			systemTransform ["01_1"] = gelenke[1].getTransformation();
-			posS1.push_back(systemTransform["01_1"].translation());
-			T10 = - systemTransform["01_1"];
+			systemTransform[0][0] = gelenke[1].getTransformation();
+			systemTransform[0][1] = systemTransform[0][0];
+			systemTransform[0][2] = systemTransform[0][0];
+			systemTransform[0][3] = systemTransform[0][0];
+			T10 = - systemTransform[0][0];
 			}
 		else
 			{
-			systemTransform["01_2"] = gelenke[1].getTransformation();
-			posS1.push_back(systemTransform["01_2"].translation());
-			T10 = - systemTransform["01_2"];
+			systemTransform[0][4] = gelenke[1].getTransformation();
+			systemTransform[0][5] = systemTransform[0][4];
+			systemTransform[0][6] = systemTransform[0][4];
+			systemTransform[0][7] = systemTransform[0][4];
+			T10 = - systemTransform[0][4];
 			}
+		//Handwurzelposition von S0 in S1 umrechnen
 		HWinS1 = T10 * posHW;
 		x[i]= HWinS1[0];
 		y[i]= HWinS1[1];
@@ -187,51 +197,164 @@ void roboter6::BasKin2()
 		theta2BasKin2 [2*i+1] = _RAD2DEG(phi[i] - beta[i]);
 		theta3BasKin2 [2*i] = _RAD2DEG(-(alpha[i] + beta[i]));
 		theta3BasKin2 [2*i+1] = _RAD2DEG((alpha[i] + beta[i]));
+		for (int x=0 ; x < 8 ; x+=2)
+			{
+			theta[1][x] = theta2BasKin2[x/2];
+			theta[1][x+1] =theta[1][x];
+			
+			theta[2][x] = theta3BasKin2[x/2];
+			theta[2][x+1] = theta[2][x+1];
+			}
+
 		}
-	//mit ein bisschen Hirnschmalz hätte man sich jetzt einen besseren Algorhitmus überlegen können
 
-	gelenke[2].thetaIs(theta2BasKin2[0]);
-	gelenke[2].makeTargetTransformMatrix();
-	systemTransform["12_1"]	= gelenke[2].getTransformation();
+		for (int n =0 ; n < 4 ; n++)
+			{
+			gelenke[2].thetaIs(theta2BasKin2[n]);
+			gelenke[2].makeTargetTransformMatrix();
+			systemTransform[1][n*2] = gelenke[2].getTransformation();
+			systemTransform[1][n*2+1] =systemTransform[1][n*2];
 
+			gelenke[3].thetaIs(theta3BasKin2[n]);
+			gelenke[3].makeTargetTransformMatrix();
+			systemTransform[2][n*2] = gelenke[3].getTransformation();
+			systemTransform[2][n*2+1] = systemTransform[2][n*2];
+			}
 
-	gelenke[2].thetaIs(theta2BasKin2[1]);
-	gelenke[2].makeTargetTransformMatrix();
-	systemTransform["12_2"]	= gelenke[2].getTransformation();
-
-
-	gelenke[2].thetaIs(theta2BasKin2[2]);
-	gelenke[2].makeTargetTransformMatrix();
-	systemTransform["12_3"]	= gelenke[2].getTransformation();
-
-
-	gelenke[2].thetaIs(theta2BasKin2[3]);
-	gelenke[2].makeTargetTransformMatrix();
-	systemTransform["12_4"]	= gelenke[2].getTransformation();
-
-	gelenke[3].thetaIs(theta3BasKin2[0]);
-	gelenke[3].makeTargetTransformMatrix();
-	systemTransform["32_1"] = gelenke[3].getTransformation();
-
-	gelenke[3].thetaIs(theta3BasKin2[1]);
-	gelenke[3].makeTargetTransformMatrix();
-	systemTransform["32_2"] = gelenke[3].getTransformation();
-  
-	gelenke[3].thetaIs(theta3BasKin2[2]);
-	gelenke[3].makeTargetTransformMatrix();
-	systemTransform["32_3"] = gelenke[3].getTransformation();
-
-	gelenke[3].thetaIs(theta3BasKin2[3]);
-	gelenke[3].makeTargetTransformMatrix();
-	systemTransform["32_4"] = gelenke[3].getTransformation();
 	}
 
 void roboter6::BasKin3()
 	{
-  
+	trmat T30[4];
+	trmat T36[4];
+
+	for (int n =0 ; n<4 ; n++)
+		{
+		Mat<double> thetaHolder (3,2);
+		T30[n] = -( systemTransform[0][n*2] * systemTransform[1][n*2] * systemTransform[2][n*2]);
+		T36[n] = T30[n] * Endeffektor;
+		R36[n] = T36[n].rotation();
+		thetaHolder = InvEuler323 (n);
+		for (int x = 0 ; x<6 ; x++)
+			thetaHolder[x] = _RAD2DEG (thetaHolder[x]);
+		
+		theta[3][2*n] = thetaHolder(0,0);
+		theta[3][2*n+1]= thetaHolder(0,1);
+		gelenke[4].thetaIs(thetaHolder(0,0));
+		gelenke[4].makeTargetTransformMatrix();
+		systemTransform[3][2*n] = gelenke[4].getTransformation();
+		gelenke[4].thetaIs(thetaHolder(0,1));
+		gelenke[4].makeTargetTransformMatrix();
+		systemTransform[3][2*n+1]= gelenke[4].getTransformation();
+		
+		theta[4][2*n] = thetaHolder(1,0);
+		theta[4][2*n+1] = thetaHolder(1,1);
+		gelenke[5].thetaIs(thetaHolder(1,0));
+		gelenke[5].makeTargetTransformMatrix();
+		systemTransform[4][2*n] = gelenke[5].getTransformation();
+		gelenke[5].thetaIs(thetaHolder(1,1));
+		gelenke[5].makeTargetTransformMatrix();
+		systemTransform[4][2*n+1] = gelenke[5].getTransformation();
+
+		theta[5][2*n] = thetaHolder(2,0);
+		theta[5][2*n+1] = thetaHolder(2,1);
+		gelenke[6].thetaIs(thetaHolder(2,0));
+		gelenke[6].makeTargetTransformMatrix();
+		systemTransform[5][2*n] = gelenke[6].getTransformation();
+		gelenke[6].thetaIs(thetaHolder(2,1));
+		gelenke[6].makeTargetTransformMatrix();
+		systemTransform[5][2*n+1] =gelenke[6].getTransformation();
+		}
 	}
 
-void roboter6::BasKin4()
+Mat<double> roboter6::InvEuler323(const int n)
 	{
+	Mat<double> temp (3,2);
+	double ref = sqrt (R36[n](2,0) * R36[n](2,0) + R36[n](2,1) * R36[n](2,1));
+	double sb[2];
+		
+		for (int c=0; c<2; c++)
+		{
+		if(c==0)
+			temp(1,c) = atan2 (ref,R36[n](2,2)); //beta, entspricht theta2
+		else
+			temp(1,c) = atan2 (-ref,R36[n](2,2)); //beta, entspricht theta2
+
+		sb[c] = sin (temp(1,c));
+		if(abs(M_PI -sb[c])<=1e-14)
+		{
+		temp(0,c) = M_PI/3;
+		//b = a-g --> g = a - b
+		temp(2,c) = temp(0,c) - temp(1,c);
+		}
+		else if (abs(sb[c]-0.0)<=1e-14)
+		{
+		temp(0,c) = M_PI/3;
+		//b= a + g --> g= b - a
+		temp(2,c)= temp(1,c) - temp(1,c);
+		}
+		else
+		 {
+		temp(0,c) = atan2 (R36[n](1,2)/sb[c] , R36[n](0,2)/sb[c]); //alpha, entspricht theta1
+		temp(2,c) = atan2 (R36[n](2,1)/sb[c], -R36[n](2,0)/sb[c]); // gamma, entspricht theta3
+		}
+
+		}
+
+
+	return temp;
 	}
 
+
+void roboter6::calcWorldTransformations()
+	{
+	worldTransform[0] = gelenke[1].getTransformation();
+
+	for (int i = 1 ; i<6 ; i++)
+		{
+		worldTransform[i] = worldTransform[i-1] * (gelenke[i+1].getTransformation());
+		}
+	}
+
+void roboter6::updateMatrices()
+	{
+	for (int i= 1 ; i<7 ; i++)
+		gelenke[i].makeValueTransformMatrix();
+	calcWorldTransformations();
+	}
+
+Col<double> roboter6::giveAnkleNPositionInWorld (const int ankle)
+	{
+	if (ankle <1 && ankle > 6)
+		throw logic_error("Just 6 ankles");
+
+	return worldTransform[ankle].translation();
+	}
+
+Mat<double> roboter6::giveAnkleNRotationInWorld(const int ankle)
+	{
+	if (ankle < 1 && ankle > 6)
+		throw logic_error("only 6 ankles");
+
+	return worldTransform[ankle].rotation();
+	}
+
+void roboter6::setEndEffektor (const trmat& other)
+	{
+	Endeffektor = other;
+	}
+void roboter6::giveInverseOptions(double** aTheta)
+	{
+	for (int y = 0 ; y < 6 ; y++)
+		for (int x = 0 ;x < 8 ; x++)
+			aTheta[y][x] = theta[y][x];
+	}
+/*
+void roboter6::sortPossibilites()
+	{
+	double differenceOfTheta [8]
+	for (int i = 0 ; i < 8 ; i++)
+		for (int j= 0 ; j < 6 ; j++)
+		differenceOfTheta[i] += abs(theta[j][i] - gelenke[j+1].theta);
+			
+	}*/

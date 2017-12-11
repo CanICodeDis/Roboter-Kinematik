@@ -2,7 +2,7 @@
 
 //------------Konstruktoren------------------------
 
-gelenk::gelenk(const int an, bDouble aTheta, bDouble aH, double aR, double aAlpha)
+gelenk::gelenk(const int an, bDouble aTheta, bDouble aH, double aR, double aAlpha):Transform(an)
 	{
 	n = an;
 	theta = aTheta;
@@ -25,7 +25,7 @@ gelenk::gelenk(const int an):Transform(an)
 gelenk::gelenk (const gelenk& other):theta(other.theta),h(other.h)
 	{
 	r= other.r;
-	alpha= other.r;
+	alpha= other.alpha;
 	Transform= other.Transform;
 	n= other.n;
 	l= other.l;
@@ -122,9 +122,8 @@ double gelenk::laenge()
 	return l;
 	}
 
-gelenk gelenk::operator = (const gelenk& other)
+gelenk& gelenk::operator = (const gelenk& other)
 	{
-	gelenk temp;
 	this->n = other.n;
 	this->Transform = other.Transform;
 	this->theta = other.theta;
@@ -132,6 +131,5 @@ gelenk gelenk::operator = (const gelenk& other)
 	this->r = other.r;
 	this->alpha = other.alpha;
 	this->l = other.l;
-	temp = *this;
-	return temp;
+	return *this;
 	}

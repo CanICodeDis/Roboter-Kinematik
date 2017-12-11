@@ -17,9 +17,12 @@ class roboter6
 
 	vector<gelenk> gelenke;
 	Col<double> posHW;
-	vector<Col<double>> posS1;
-	unordered_map<string,trmat> systemTransform;
-	trmat Endeffektor;
+	trmat systemTransform [6][8];
+	double theta [6][8];
+	trmat worldTransform[6];
+	
+	trmat Endeffektor;//T06
+	Mat<double> R36[4];
 	simtype target;
 
 	double theta1BasKin1 [2];
@@ -27,6 +30,7 @@ class roboter6
 	double theta3BasKin2 [4];
 
 	void abn(std::ifstream& s, std::string& a, std::string& b, int& n, int& ln);
+	Mat<double> InvEuler323(const int n);
 
 	public:
 
@@ -34,16 +38,20 @@ class roboter6
 	roboter6 (const char* MODEL_FILE);
 	roboter6();
 	~roboter6()=default;
+
 	
-	void buildRobot();
 	void BasKin1 ();
 	void BasKin2 ();
 	void BasKin3 ();
-	void BasKin4 ();
 
 	gelenk& getGelenk (const int aNummer);
-	
-
+	Col<double> giveAnkleNPositionInWorld (const int ankle);
+	Mat<double> giveAnkleNRotationInWorld (const int ankle);
+	void calcWorldTransformations ();
+	void setEndEffektor (const trmat&);
+	void giveInverseOptions (double** theta);
+//	void sortPossibilities();
+	void updateMatrices();
 };
 
 #endif

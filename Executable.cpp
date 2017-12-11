@@ -24,12 +24,12 @@ int main(int argc, char** argv) {
 	p1 = {0 , 0 , 0 , 1};
 	s2.minThetaIs(0.0);
 	s2.maxThetaIs(90.0);
-	s2.alphaIs(52.0);
+	s2.alphaIs(0);
 	s2.minHIs(0.0);
 	s2.maxHIs(500.0);
-	s2.rIs(34.0);
+	s2.rIs(0.0);
 	s2.hIs(65.0);
-	s2.thetaIs(13.0);
+	s2.thetaIs(0);
 	s2.makeTargetTransformMatrix();
 	cout<<"Determinante: "<<s2.validateRotation()<<endl;
 	cout<<s2.translation()<<endl<<s2.rotation();	
@@ -41,7 +41,8 @@ int main(int argc, char** argv) {
 	T60 = -T06;
 	cout<< "T60: "<< endl<<T60.giveTransform()<<endl;
 
-	gelenk s3 (s2);
+	gelenk s3 (3);
+	s3 = s2;
 	cout<<" S3 Länge: "<< s3.laenge()<<endl;
 	p2 = T06 * p1;
 	cout<< "P2: "<<endl<<p2<<endl;
