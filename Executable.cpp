@@ -18,38 +18,7 @@ fd_set savefds;
 struct timeval timeout;
 
 int main(int argc, char** argv) {
-		gelenk s2(2);
-	Col<double> p1 (4);
-	Col<double> p2 (4);
-	p1 = {0 , 0 , 0 , 1};
-	s2.minThetaIs(0.0);
-	s2.maxThetaIs(90.0);
-	s2.alphaIs(0);
-	s2.minHIs(0.0);
-	s2.maxHIs(500.0);
-	s2.rIs(0.0);
-	s2.hIs(65.0);
-	s2.thetaIs(0);
-	s2.makeTargetTransformMatrix();
-	cout<<"Determinante: "<<s2.validateRotation()<<endl;
-	cout<<s2.translation()<<endl<<s2.rotation();	
-	s2.calcLaenge();
-	cout<<"Länge: "<< s2.laenge()<<endl;
-	trmat T06,T60;
-	T06 = s2.getTransformation();
-	cout<< "T06: "<<endl<< T06.giveTransform()<<endl;
-	T60 = -T06;
-	cout<< "T60: "<< endl<<T60.giveTransform()<<endl;
 
-	gelenk s3 (3);
-	s3 = s2;
-	cout<<" S3 Länge: "<< s3.laenge()<<endl;
-	p2 = T06 * p1;
-	cout<< "P2: "<<endl<<p2<<endl;
-
-	p1 = T60 * p2;
-	cout<<"P1: "<<endl<<p1;
-	if (1==1) return 0;
 	//arg 0 is always the executed application
 	if (argc != 2) {
 		std::cout << "Please specify a target model to load!" << std::endl;
@@ -62,7 +31,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	gelenk g1 = roboter->getGelenk(1);
-	std::cout << "Gelenk " << g1.nummer() << ": T " << g1.giveTheta() << " R " << g1.giveR() << " H " << g1.giveH() << " A " << g1.giveAlpha() << std::endl;
 
 	//block that allows to check for available data more reliably than peek()==EOF
 	FD_ZERO(&readfds);
@@ -89,9 +57,14 @@ int main(int argc, char** argv) {
 	while (SDL_SemValue(running)==0) {
 		readfds = savefds;
 		if (select(1, &readfds, NULL, NULL, &timeout)) {
-			handleConsoleInput();
+			try {
+				handleConsoleInput();
+			} catch (std::runtime_error& e) {
+				std::cout << e.what() << std::endl << std::endl;
+			}
 		}
-		SDL_Delay(15);
+		toCli.pop();
+		SDL_Delay(100);
 	}
 
 	SDL_WaitThread(vThread, NULL);
@@ -99,6 +72,14 @@ int main(int argc, char** argv) {
 	free(roboter);
 }
 
+char c2l (char c) {
+	return (c>='A'&&c<='Z')
+			? c|' '
+			: c;
+}
+void tolower(std::string& s) {
+	std::transform(s.begin(), s.end(), s.begin(), c2l);
+}
 bool nextConsoleToken(int& token) {
 	char c;
 	std::cin.get(c);
@@ -122,6 +103,7 @@ bool nextConsoleToken(std::string& token) {
 	std::cin.get(c);
 	if (c == ' ') {
 		std::cin >> token;
+		tolower(token);
 		return true;
 	}
 	return false;
@@ -129,6 +111,7 @@ bool nextConsoleToken(std::string& token) {
 void handleConsoleInput() {
 	std::string token;
 	std::cin >> token;
+	tolower(token);
 
 	if (token == "quit") {
 		std::cout << "Good bye!\n";
@@ -141,6 +124,10 @@ void handleConsoleInput() {
 				std::cout << "  == Help 'quit' ==\nThis command quits the application\n -] Params:\n  NONE\n";
 			} else if (token == "set") {
 				std::cout << "  == Help 'set' ==\nThis command is used to live manipulate the robot\nWe would like to apologize for the lack of graphical manipulation methods\n -] Params: <JOINT> <PARAM> <SUBPA> <VALUE>\n  JOINT - The joint index to manipulate\n  PARAM - The name of the DH param to change. One of: Theta, TransZ, TransX, Alpha.\n  SUBPA - The name of a sub parameter to change. Theta ans TransZ support Min, Max and Speed in addition to Value accepted for all parameters.\n  VALUE - The new value to set this parameter to.";
+			} else if (token == "movedh") {
+				std::cout << " == Help 'movedh' ==\nThis command solves the inverse kinematic equations for an ee-point in DH-coordinates\n -] Params: <RotZ> <TransZ> <TransX> <RotX>\n  RotZ - Rotation around the Z axis (up)\n  TransZ - Translation in Z axis (up)\n  TransX - Translation in rotated X axis (forward)\n  RotX - Rotation around the rotated X axis (forward).";
+			} else if (token == "moteto") {
+				std::cout << " == Help 'moveto' ==\nThis command solves the inverse kinematic  equations for an ee-point in (X;Y;Z) with a Yaw-Pitch-Roll rotation\n -] Params: <X> <Y> <Z> <Yaw> <Pitch> <Roll>\n  X - Target position in X\n  Y - Target position in Y\n  Z - Exactly, Target position in W; No wait, Z\n  Yaw - Rotation around Z axis (first)\n  Pitch - Rotation around Y axis (second)\n  Roll - Rotation around X axis (last)";
 			} else {
 				std::cout << "  == Help '" << token << "' ==\nUnknown command\n";
 			}
@@ -151,7 +138,7 @@ void handleConsoleInput() {
 				<< "Powered By SDL and Armadillo\n"
 				<< "You are running version " << VERSION << " \\o/\n"
 				<< "\n  Available commands:\n"
-				<< "quit, set"
+				<< "quit, set, movedh, moveto"
 				<< "\n Use help <command> for more information\n";
 		}
 
@@ -163,16 +150,16 @@ void handleConsoleInput() {
 		ParamSubTypeTM m;
 
 		if (nextConsoleToken(g) && nextConsoleToken(p) && nextConsoleToken(s) && nextConsoleToken(v)) {
-			if (p=="Theta") n = Theta;
-			else if (p=="TransZ" || p=="H") n = TransZ;
-			else if (p=="TransX" || p=="R") n = TransX;
-			else if (p=="Alpha") n = Alpha;
+			if (p=="theta") n = Theta;
+			else if (p=="transz" || p=="h") n = TransZ;
+			else if (p=="transx" || p=="r") n = TransX;
+			else if (p=="alpha") n = Alpha;
 			else throw runtime_error((string("No such parameter ")+p).c_str());
 
-			if (s=="Min") m = Min;
-			else if (s=="Max") m = Max;
-			else if (s=="Speed") m = Speed;
-			else if (s=="Value" || s=="Target") m = Value;
+			if (s=="min") m = Min;
+			else if (s=="max") m = Max;
+			else if (s=="speed") m = Speed;
+			else if (s=="value" || s=="target") m = Value;
 			else throw runtime_error((string("No such sub-parameter ")+s).c_str());
 
 			try {
@@ -180,6 +167,22 @@ void handleConsoleInput() {
 			} rethrow
 
 			std::cout << "Setting " << s << " for joint " << g << ' ' << p << " to " << v << std::endl;
+		} else {
+			std::cout << "Missing arguments!" << std::endl;
+		}
+	} else if (token == "movedh") {
+		double rz, tz, tx, rx;
+		if (nextConsoleToken(&rz) && nextConsoleToken(&tz) && nextConsoleToken(&tx) && nextConsoleToken(&rx) {
+			toVis.push(new SetEEinDH(rz,tz,tx,ry));
+		} else {
+			std::cout << "Missing arguments!" << std::endl;
+		}
+	} else if (token == "moveto") {
+		double x,y,z,u,v,w;
+		if (nextConsoleToken(&x) && nextConsoleToken(&y) && nextConsoleToken(&z) && nextConsoleToken(&u) && nextConsoleToken(&v) && nextConsoleToken(&w) {
+			toVis.push(new SetEEinTR(x,y,z,u,w,v));
+		} else {
+			std::cout << "Missing arguments!" << std::endl;
 		}
 	} else {
 		std::cout << "Command not recognized! Try 'help' :)" << std::endl;

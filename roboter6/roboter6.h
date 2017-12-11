@@ -45,6 +45,9 @@ class roboter6
 	void BasKin3 ();
 
 	gelenk& getGelenk (const int aNummer);
+	inline simtype getSimType() {
+		return target; 
+	}	
 	Col<double> giveAnkleNPositionInWorld (const int ankle);
 	Mat<double> giveAnkleNRotationInWorld (const int ankle);
 	void calcWorldTransformations ();
@@ -52,6 +55,7 @@ class roboter6
 	void giveInverseOptions (double** theta);
 //	void sortPossibilities();
 	void updateMatrices();
+
 };
 
 #endif
