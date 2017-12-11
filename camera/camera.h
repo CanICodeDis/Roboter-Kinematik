@@ -51,7 +51,7 @@ class Camera {
 	//be honkydory
 	arma::Mat<double> matT;
 public:
-	Camera ():dist(10.0), angleY(135.0), angleX(-10.0) {
+	Camera ():dist(10.0), angleY(-135.0), angleX(-10.0) {
 		matT = arma::Mat<double>(4,4,arma::fill::eye);
 		try {
 			setFOV(90);

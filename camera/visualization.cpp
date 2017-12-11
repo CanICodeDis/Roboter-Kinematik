@@ -6,7 +6,8 @@ void render();
 void swapBuffers();
 
 //used for timings, frametime since last frame, do not write!
-int frameTime=0; double smoothFPS=1.0;
+int frameTime=0; 
+double smoothFPS=0.0;
 
 //The window we'll be rendering to 
 SDL_Window* window = NULL; 
@@ -25,7 +26,7 @@ Camera cam;
 int thVisual(void* data) {
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	cam.setAngleYaw(0.0).setAnglePitch(-10.0).setDist(10.0).updateT();
+	cam.setAngleYaw(-135.0).setAnglePitch(15.0).setDist(10.0).updateT();
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
 		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() ); 
@@ -55,8 +56,12 @@ int thVisual(void* data) {
 		swapBuffers();
 
 		frameTime = SDL_GetTicks()-start;
-		smoothFPS = (smoothFPS*0.8+200.0/double(frameTime))/2.0;
+		if (frameTime<10) {
+			SDL_Delay(10-frameTime); //frame-limiting, because cinematic fps ;)
+			frameTime=10;
+		}
 		start+=frameTime;
+		smoothFPS = (smoothFPS*2+1000.0/frameTime)/3.0;
 	}
 
 	TTF_Quit();
@@ -71,8 +76,8 @@ void sdlEventHandler() {
 			SDL_SemPost(running);
 		} else if (e.type == SDL_MOUSEMOTION) {
 			if (e.motion.state == SDL_BUTTON_LMASK) {
-				double dx = -0.04*e.motion.xrel;
-				double dy = -0.04*e.motion.yrel;
+				double dx = -0.1*e.motion.xrel;
+				double dy = 0.1*e.motion.yrel;
 				cam.setAngleYaw(cam.getAngleYaw()+dx)
 					.setAnglePitch(cam.getAnglePitch()+dy)
 					.updateT();
@@ -88,8 +93,8 @@ void sdlEventHandler() {
 void think(int ms) {
 	toVis.pop();
 	bDouble::tick(ms);
-	roboter->getGelenk(1).makeValueTransformMatrix();
-	if (frameTime<10) SDL_Delay(10); //frame-limiting, because cinematic fps ;)
+	roboter->updateMatrices()
+//	roboter->getGelenk(1).makeValueTransformMatrix();
 }
 
 void renderCoordSys(const Mat<double>& R, const arma::Col<double>& P) {
@@ -119,7 +124,7 @@ void render() {
 	SDL_RenderFillRect(renderer, &screenSurface->clip_rect);
 //	SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0x00, 0x00, 0x00) );
 	char smsg[128]={0};
-	sprintf(smsg, "FPS:% 5i (% 3ims)", int(smoothFPS), frameTime);
+	sprintf(smsg, "FPS:% 5i (% 3ims)", (int)smoothFPS, frameTime);
 	printText(smsg, 4, 4);
 	sprintf(smsg, "Yaw: %.2f  Pitch %.2f  Dist: %.2f", cam.getAngleYaw(), cam.getAnglePitch(), cam.getDist());
 	printText(smsg, 4, 20);
@@ -130,20 +135,28 @@ void render() {
 		printText(smsg, 4, 4+16*(i+1) );
 	}
 //*///
-	arma::Col<double> nul = {0,0,0};
-	arma::Mat<double> eye(3,3,arma::fill::eye);
-	renderCoordSys(eye, nul);
 
-	sPoint* spNul=cam.transform(nul);
-	nul = roboter->getGelenk(1).getTransformation().translation().head(3);
- 	sPoint* spA=cam.transform(nul);
-	SDL_SetRenderDrawColor( renderer, 255,255,255,255);
-	SDL_RenderDrawLine( renderer, spNul->X(), spNul->Y(), spA->X(), spA->Y());
-	delete (spNul);
-	delete (spA);
 
-	eye = roboter->getGelenk(1).getTransformation().rotation();
-	renderCoordSys(eye, nul);
+	arma::Col<double> point = {0,0,0};
+	arma::Mat<double> rot(3,3,arma::fill::eye);
+	renderCoordSys(rot, point);
+	sPoint* spPre=cam.transform(point), spNext;
+
+	fot (int i=0; i<6; i++) {
+		point = roboter->getGelenk(i).getTransformation().translation().head(3);
+		rot = roboter->getGelenk(i).getTransformation().rotation();
+
+		sPoint* spNext=cam.transform(point);
+
+		SDL_SetRenderDrawColor( renderer, 255,255,255,255 );
+		SDL_RenderDrawLine( renderer, spPre->X(), spPre->Y(), spNext->X(), spNext->Y());
+
+		renderCoordSys(rot, point);
+
+		delete (spPre);
+		spPre = spNext;
+	}
+	delete (spPre);
 
 /*///
 	arma::Col<double> point = {0,0,0};

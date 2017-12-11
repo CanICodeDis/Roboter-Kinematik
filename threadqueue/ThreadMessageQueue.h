@@ -30,6 +30,66 @@ public:
 	void handle();
 };
 
+class SetEEinDH : public AbstractThreadMessage {
+	double rz, tz, tx, rx;
+public:
+ 	inline SetEEinDH(double aRz, double aTz, double aTx, double aRx)
+			:rz(aRz),tz(aTz),tx(aTx),rx(aRx){
+	}
+	void handle();
+}
+
+class SetEEinTR : public AbstractThreadMessage {
+	double x,y,z,u,v,w;
+public: 
+	inline SetEEinTR(double ax, double ay, double az, double ayaw, double apitch, double aroll)
+			:x(ax),y(ay),z(az),u(ayaw),v(apitch),w(aroll) {
+	}
+	void handle();
+}
+
+class JumpRobotJoints : public AbstractThreadMessage {
+	double cfg[6][2];
+	int n;
+public:
+	inline JumpRobotJoints( double** v, int o, double* p ):n(o) {
+		for (int i=0; i<6; i++) {
+			cfg[i][0] = p[i];
+			cfg[i][1] = v[i][n];
+		}
+	}
+	inline JumpRobotJoints( double* val ) {
+		n=0;
+		for (int i=0; i<6; i++) {
+			cfg[i][0] = cfg[i][1] = val[i];
+		}
+	}
+	void handle();
+}
+
+class RetrieveInverseOptions : public AbstractThreadMessage {
+	double values [6][8];
+	bool valid[8];
+public:
+	inline RetrieveInverseOptions() {
+		roboter->giveInverseOptions( values );
+		for (int o=0; o<8; o++) {
+			bool v = true; double det;
+			for (int i=0; i<6; i++) {
+				gelenk gel = roboter->getGelenk(i);
+				trmat	test = trmat.getTransformation();
+				test.transform(values[i][o], gel.giveH(), gel.giveR(), gel.giveAlpha());
+				det = test.validateRotation();
+				if (det <= 0.999 || det >= 1.001 ) {
+					v = false;
+				}
+			}
+			valid[o] = v;
+		}
+	}
+	void handle();
+}
+
 class ThreadMessageQueue {
 	SDL_mutex* mutex;
 	std::queue<AbstractThreadMessage*> messages;
