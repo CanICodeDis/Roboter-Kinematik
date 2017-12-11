@@ -160,7 +160,7 @@ public:
 		return target;
 	}
 	template <typename T> inline bDouble& setSoft(T d) {
-		double nt = target + static_cast<double>(d);
+		double nt = static_cast<double>(d);
 		if (nt<min) target = min;
 		else if (nt>max) target = max;
 		else target = nt;

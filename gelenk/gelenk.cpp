@@ -25,7 +25,7 @@ gelenk::gelenk(const int an):Transform(an)
 gelenk::gelenk (const gelenk& other):theta(other.theta),h(other.h)
 	{
 	r= other.r;
-	alpha= other.r;
+	alpha= other.alpha;
 	Transform= other.Transform;
 	n= other.n;
 	l= other.l;

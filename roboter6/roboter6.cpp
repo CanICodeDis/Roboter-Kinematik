@@ -86,6 +86,7 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 								throw parse_error( "JOINT does not end after values", linecounter );
 							if (valid != 0b00001111)
 								throw parse_error( "JOINT did not get all params: Alpha(1), Theta(4), TransZ(4), TransX(1)", linecounter );
+							std::cout << "Loaded joint " << geli << " with DH " << gat << ", " << gah << ", " << gar << ", " << gaa << std::endl;
 							gelenke.at(geli) = gelenk(geli, gat, gah, gar, gaa);
 						} else throw new parse_error( "Invalid block within ROBOT, begin JOINT or end ROBOT", linecounter );
 	
@@ -95,6 +96,7 @@ roboter6::roboter6(const char* MODEL_FILE):posHW(4)
 					std::string line="";
 					while (line != "END COMMENT") {
 						std::getline(fin, line);
+						std::cout << line << std::endl;
 						linecounter++;
 					}
 				}	else throw parse_error( "Unknown begin block", linecounter );

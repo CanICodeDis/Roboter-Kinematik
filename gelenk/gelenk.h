@@ -64,7 +64,7 @@ class gelenk
 		// setzt den Abstand des Koordinatenursprungs zum
 		// vorigen Koordinatenursprung
 		// entlang der n-ten X-Achse
-           	double giveR(void) {return r;}
+		double giveR(void) {return r;}
 
 		void makeTargetTransformMatrix();
 		void makeValueTransformMatrix();

@@ -49,12 +49,10 @@ class Camera {
 	//into world origin first. (Pw-Tc)
 	//Now that the camera is origin we need to ONLY rotate and everything should
 	//be honkydory
-	arma::Mat<double> matR; //Rotational matrix
-	arma::Col<double> colT; //Trnaslation vector
+	arma::Mat<double> matT;
 public:
 	Camera ():dist(10.0), angleY(135.0), angleX(-10.0) {
-		matR = arma::Mat<double>(3,3);
-		colT = arma::Col<double>(3);
+		matT = arma::Mat<double>(4,4,arma::fill::eye);
 		try {
 			setFOV(90);
 		} rethrow
@@ -62,8 +60,7 @@ public:
 		screenCache = {};
 	}	
 	Camera (double aFOV, double aDist, double aAngleY, double aAngleX):dist(aDist),angleY(aAngleY),angleX(aAngleX) {
-		matR = arma::Mat<double>(3,3);
-		colT = arma::Col<double>(3);
+		matT = arma::Mat<double>(4,4,arma::fill::eye);
 		try {
 			setFOV(aFOV);
 		} rethrow
@@ -81,18 +78,18 @@ public:
 	Camera& setAnglePitch( double aAngle );
 	inline double getAnglePitch() { return angleX; }
 	Camera& updateT();
-	inline arma::Mat<double>& getR() {
-		return matR;
+	inline arma::Mat<double> getR() {
+		return matT.submat(0,0,2,2);
 	}
 	//positive camera coords, use point-getT()
-	inline arma::Col<double>& getT() {
-		return colT;
+	inline arma::Col<double> getT() {
+		return matT.col(3).head(3);
 	}
 
 	inline void setFOV(double aFOV) {
 		if (aFOV < 30 || aFOV > 180) throw std::range_error( "FOV not supported! (Use [30; 180])" );
 		FOV = aFOV;
-		cx = 2.0 / tan( _DEG2RAD(FOV/2) );
+		cx = 0.5 / tan( _DEG2RAD(FOV/2) );
 	}
 	
 	inline void clear() {
