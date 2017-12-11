@@ -18,7 +18,7 @@ trmat::trmat():Transform(4,4)
 	{
 	}
 
-trmat trmat::operator * (trmat& aVor)
+trmat trmat::operator * (const trmat& aVor)
 {
 	if (this->eingangssystem != aVor.ausgangssystem)
 		{
@@ -84,12 +84,12 @@ Col<double> trmat::operator * (Col<double>& aPoint)
 	return result;
 	}
 
-void trmat::operator = (trmat aTrans)
+trmat& trmat::operator = (const trmat& aTrans)
 	{
-	//trmat temp;
 	this->ausgangssystem = aTrans.ausgangssystem;
 	this->eingangssystem = aTrans.eingangssystem;
 	this->Transform = aTrans.Transform;
+	return *this;
 	}
 
 trmat trmat::operator -()

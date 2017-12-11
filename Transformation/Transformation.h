@@ -23,10 +23,10 @@ class trmat
 		double validateRotation();
 		Col<double> translation();
 		
-		void operator = (trmat);
+		trmat& operator = (const trmat&);
 		trmat operator -();
 		Col<double> operator * (Col<double>&);
-		trmat operator * (trmat& aVor);
+		trmat operator * (const trmat& aVor);
 
 		Mat<double> transform (double aTheta, double aL, double aAlpha, double aR);
 		Mat<double> giveTransform();

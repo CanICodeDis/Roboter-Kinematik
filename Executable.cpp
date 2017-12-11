@@ -18,7 +18,7 @@ fd_set savefds;
 struct timeval timeout;
 
 int main(int argc, char** argv) {
-	
+
 	//arg 0 is always the executed application
 	if (argc != 2) {
 		std::cout << "Please specify a target model to load!" << std::endl;

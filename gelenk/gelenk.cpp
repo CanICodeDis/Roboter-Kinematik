@@ -2,7 +2,7 @@
 
 //------------Konstruktoren------------------------
 
-gelenk::gelenk(const int an, bDouble aTheta, bDouble aH, double aR, double aAlpha)
+gelenk::gelenk(const int an, bDouble aTheta, bDouble aH, double aR, double aAlpha):Transform(an)
 	{
 	n = an;
 	theta = aTheta;
