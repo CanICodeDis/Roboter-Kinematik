@@ -139,24 +139,31 @@ void render() {
 
 	arma::Col<double> point = {0,0,0};
 	arma::Mat<double> rot(3,3,arma::fill::eye);
-	renderCoordSys(rot, point);
 	sPoint* spPre=cam.transform(point), spNext;
 
 	for (int i=1; i<7; i++) {
 		point = roboter->giveAnkleNPositionInWorld(i).head(3);
-		rot = roboter->giveAnkleNRotationInWorld(i);
 
 		sPoint* spNext=cam.transform(point);
 
 		SDL_SetRenderDrawColor( renderer, 255,255,255,255 );
 		SDL_RenderDrawLine( renderer, spPre->X(), spPre->Y(), spNext->X(), spNext->Y());
-
-		renderCoordSys(rot, point);
+//		std::cout << "Line " << i << " from " << spPre->X() << ", " << spPre->Y() << " to " << spNext->X() << ", " << spNext->Y() << std::endl;
+//		std::cout << point << std::endl;
 
 		delete (spPre);
 		spPre = spNext;
 	}
 	delete (spPre);
+
+	point = {0,0,0};
+	renderCoordSys(rot, point);
+	for (int i=1; i<7; i++) {
+		point = roboter->giveAnkleNPositionInWorld(i).head(3);
+		rot = roboter->giveAnkleNRotationInWorld(i);
+
+		renderCoordSys(rot, point);
+	}
 
 /*///
 	arma::Col<double> point = {0,0,0};

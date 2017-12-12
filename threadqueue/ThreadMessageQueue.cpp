@@ -115,6 +115,7 @@ void RetrieveInverseOptions::handle() {
 	for (int i=0; i<6; i++)
 		pre[i] = roboter->getGelenk(i+1).theta.getTarget();
 	char in; int n;
+	std::cin.ignore(1000, '\n');
 	while ((in=getch_())!='\n') {
 		n=in-'0'-1;
 		if (n>=0 && n<=7) {
