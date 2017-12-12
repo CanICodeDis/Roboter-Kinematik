@@ -85,7 +85,7 @@ public:
 			for (int i=0; i<6; i++) {
 				gelenk gel = roboter->getGelenk(i+1);
 				trmat	test = gel.getTransformation();
-				test.transform(values[i][o], gel.giveH(), gel.giveR(), gel.giveAlpha());
+				test.transform(values[i][o], gel.giveAlpha(), gel.giveH(), gel.giveR());
 				det = test.validateRotation();
 				if (det <= 0.999 || det >= 1.001 ) {
 					v = false;
