@@ -9,6 +9,7 @@
 #include "../gelenk/gelenk.h"
 #include "../roboter6/roboter6.h"
 #include "../Transformation/Transformation.h"
+#include "../terminal/Termios.h"
 
 extern roboter6* roboter;
 
@@ -82,7 +83,7 @@ public:
 		for (int o=0; o<8; o++) {
 			bool v = true; double det;
 			for (int i=0; i<6; i++) {
-				gelenk gel = roboter->getGelenk(i);
+				gelenk gel = roboter->getGelenk(i+1);
 				trmat	test = gel.getTransformation();
 				test.transform(values[i][o], gel.giveH(), gel.giveR(), gel.giveAlpha());
 				det = test.validateRotation();

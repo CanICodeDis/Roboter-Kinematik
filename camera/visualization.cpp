@@ -142,7 +142,7 @@ void render() {
 	renderCoordSys(rot, point);
 	sPoint* spPre=cam.transform(point), spNext;
 
-	for (int i=0; i<6; i++) {
+	for (int i=1; i<7; i++) {
 		point = roboter->getGelenk(i).getTransformation().translation().head(3);
 		rot = roboter->getGelenk(i).getTransformation().rotation();
 

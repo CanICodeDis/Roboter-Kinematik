@@ -89,12 +89,12 @@ void SetEEinTR::handle() {
 void JumpRobotJoints::handle() {
 	try {
 		for (int i=0; i<6; i++) {
-			roboter->getGelenk(i).theta.jump(cfg[i][1]);
+			roboter->getGelenk(i+1).theta.jump(cfg[i][1]);
 		}
 	} catch (...) {
 		std::cout << "Configuration " << n << " exceeds joint limitations!" << std::endl;
 		for (int i=0; i<6; i++) {
-			roboter->getGelenk(i).theta.jump(cfg[i][0]);
+			roboter->getGelenk(i+1).theta.jump(cfg[i][0]);
 		}
 	}
 }
@@ -106,16 +106,16 @@ void RetrieveInverseOptions::handle() {
 	for (int i=0; i<8; i++) {
 		sprintf(buffer, "%s%i) % 6.2f, % 6.2f, % 6.2f, % 6.2f, % 6.2f, % 6.2f%s", 
 			(valid[i]?"":"\033[1;31m"),
-			values[0][i], values[1][i], values[2][i], values[3][i], values[4][i], values[5][i],
+			i+1, values[0][i], values[1][i], values[2][i], values[3][i], values[4][i], values[5][i],
 			(valid[i]?"":"\033[0m"));
 		std::cout << buffer << std::endl;
 	}
 
 	double pre[6];
 	for (int i=0; i<6; i++)
-		pre[i] = roboter->getGelenk(i).theta.getTarget();
+		pre[i] = roboter->getGelenk(i+1).theta.getTarget();
 	char in; int n;
-	while ((in=getch())!='\n') {
+	while ((in=getch_())!='\n') {
 		n=in-'0'-1;
 		if (n>=0 && n<=7) {
 			if (valid[n])
@@ -129,7 +129,7 @@ void RetrieveInverseOptions::handle() {
 	toVis.push(new JumpRobotJoints(pre));
 	if ((n>=0 && n<=7) && valid[n]) {
 		for (int i=0; i<6; i++) {
-			toVis.push(new SetParamTM(i, ParamTypeTM::Theta, ParamSubTypeTM::Value, values[i][n]));
+			toVis.push(new SetParamTM(i+1, ParamTypeTM::Theta, ParamSubTypeTM::Value, values[i][n]));
 		}
 	}
 }
