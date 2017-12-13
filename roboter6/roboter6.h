@@ -55,6 +55,7 @@ class roboter6
 	void giveInverseOptions (double* theta );
 //	void sortPossibilities();
 	void updateMatrices();
+	Col<double> giveWorldPosition(const int aAnkle);
 
 };
 

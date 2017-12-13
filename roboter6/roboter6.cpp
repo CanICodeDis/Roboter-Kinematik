@@ -365,3 +365,8 @@ void roboter6::sortPossibilites()
 		differenceOfTheta[i] += abs(theta[j][i] - gelenke[j+1].theta);
 			
 	}*/
+
+Col<double> roboter6::giveWorldPosition (const int aAnkle)
+	{
+	return worldTransform[aAnkle-1].translation();
+	}
