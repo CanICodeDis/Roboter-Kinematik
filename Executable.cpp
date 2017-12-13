@@ -30,7 +30,11 @@ int main(int argc, char** argv) {
 		std::cout << "Error while loading model: " << e.what() << std::endl;
 		return 1;
 	}
-	gelenk g1 = roboter->getGelenk(1);
+//	gelenk g1 = roboter->getGelenk(1);
+	roboter->updateMatrices();
+	for (int i = 1; i < 7; i++) {
+		std::cout << roboter->getGelenk(i).getTransformation().giveTransform() << std::endl;
+	}
 
 	//block that allows to check for available data more reliably than peek()==EOF
 	FD_ZERO(&readfds);

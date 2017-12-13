@@ -58,8 +58,12 @@ void SetEEinDH::handle() {
 	arma::Mat<double> matT(4,4);
 	trmat t06(matT, 0, 6);
 	t06.transform(rz,tz,tx,rx);
-	roboter->setEndEffektor(t06);
-	toCli.push(new RetrieveInverseOptions());
+	try {
+		roboter->setEndEffektor(t06);
+		toCli.push(new RetrieveInverseOptions(t06.translation()));
+	} catch (std::runtime_error& e) {
+		std::cout << e.what() << std::endl;
+	}
 }
 
 void SetEEinTR::handle() {
@@ -80,10 +84,16 @@ void SetEEinTR::handle() {
 	matT(3,0) = x;
 	matT(3,1) = y;
 	matT(3,2) = z;
+
+	std::cout << matT << std::endl;
 	
 	trmat t06(matT, 0, 6);
-	roboter->setEndEffektor(t06);
-	toCli.push(new RetrieveInverseOptions());
+	try {
+		roboter->setEndEffektor(t06);
+		toCli.push(new RetrieveInverseOptions(matT.col(3)));
+	} catch(std::runtime_error& e) {
+		std::cout << e.what() << std::endl;
+	}
 }
 
 void JumpRobotJoints::handle() {
@@ -120,7 +130,7 @@ void RetrieveInverseOptions::handle() {
 		n=in-'0'-1;
 		if (n>=0 && n<=7) {
 			if (valid[n])
-				toVis.push(new JumpRobotJoints(values, n, pre));
+				toVis.push(new JumpRobotJoints(&values[0][0], n, pre));
 			else
 				std::cout << "Configuration " << n << " has a invalid rotation!" << std::endl;
 		} else if (n==-1) {

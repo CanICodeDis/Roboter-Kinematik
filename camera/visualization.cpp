@@ -109,10 +109,10 @@ void renderCoordSys(const Mat<double>& R, const arma::Col<double>& P) {
 	SDL_SetRenderDrawColor(renderer,  50, 100, 255, 255);
 	SDL_RenderDrawLine( renderer, sp1->X(), sp1->Y(), sp2->X(), sp2->Y() );
 	delete (sp2); sp2 = cam.transform(py);
-	SDL_SetRenderDrawColor(renderer, 255, 200,  50, 255);
+	SDL_SetRenderDrawColor(renderer, 255,  50, 75, 255);
 	SDL_RenderDrawLine( renderer, sp1->X(), sp1->Y(), sp2->X(), sp2->Y() );
 	delete (sp2); sp2 = cam.transform(pz);
-	SDL_SetRenderDrawColor(renderer, 255,  50, 75, 255);
+	SDL_SetRenderDrawColor(renderer, 255, 200,  50, 255);
 	SDL_RenderDrawLine( renderer, sp1->X(), sp1->Y(), sp2->X(), sp2->Y() );
 	delete (sp2);
 	delete (sp1);

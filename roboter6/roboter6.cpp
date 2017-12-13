@@ -114,11 +114,11 @@ void roboter6::BasKin1()
 	{
 	double lEE2HW;
 	Mat<double> OrientierungEE (3,3);
-	Col<double> posEE (4);
+	Col<double> posEE (3);
 	lEE2HW = gelenke[6].laenge() + gelenke[5].laenge();
 	OrientierungEE =Endeffektor.rotation();
-	posEE = Endeffektor.translation();
-	posHW = posEE - lEE2HW * OrientierungEE.col(2);
+	posEE = Endeffektor.translation().head(3);
+	posHW = posEE - (lEE2HW * OrientierungEE.col(2));
 
 	theta1BasKin1[0] = atan2 (posHW[1],posHW[0]);
 	theta1BasKin1[1] = theta1BasKin1[0] + M_PI;
@@ -147,7 +147,8 @@ void roboter6::BasKin2()
 	//Längen der Gelenksttangen
 	double l2 , l3;
 	l2 = gelenke[2].laenge();
-	l3 = gelenke[3].laenge();
+	l3 = gelenke[3].laenge()+gelenke[4].laenge();
+	std::cout << l2 << ", " << l3 << "; ";
 	// S0 von BasKin2 entspricht S1 in Weltkoordinaten
 	// deshalb müssen wir S1 (Welt) nach S0 (BasKin2) umrechnen
 	// dabei gibt es zwei Fälle:
@@ -178,17 +179,14 @@ void roboter6::BasKin2()
 
 		//Prüfung auf Erreichbarkeit des Punktes
 		ref = sqrt (x[i] * x[i] + y[i] *y[i]);
-		if ( !( (abs( l2 - l3 )<= ref) && ((l2 + l3)>= ref) ) )
+		std::cout << ref << std::endl;
+		if ( ref <= abs(l2-l3) || ref >= (l2+l3) )
 			{
-			cout<<"BasKin2 nicht lösbar, da Handwurzel außerhalb des Arbeitsraums"<<endl;
-			//throw stuff
-			continue;
+			throw runtime_error("BasKin2 nicht lösbar, da Handwurzel außerhalb des Arbeitsraums");
 			}
 		if( (abs((x[i] - 0.0))<= 1e-14) && (abs((y[i]-0.0))<=1e-14 ))
 			{
-			cout<<" Handwurzel in S1, Tangens nicht rechenbar"<<endl;
-			continue;
-			//throw stuff
+			throw runtime_error(" Handwurzel in S1, Tangens nicht rechenbar");
 			}
 		phi[i]= atan2 (y[i],x[i]);
 		p[i] = 0.5 *(l2  + l3 + ref);
@@ -330,7 +328,7 @@ Col<double> roboter6::giveAnkleNPositionInWorld (const int ankle)
 	if (ankle <1 && ankle > 6)
 		throw logic_error("Just 6 ankles");
 
-	return worldTransform[ankle].translation();
+	return worldTransform[ankle-1].translation();
 	}
 
 Mat<double> roboter6::giveAnkleNRotationInWorld(const int ankle)
@@ -338,18 +336,25 @@ Mat<double> roboter6::giveAnkleNRotationInWorld(const int ankle)
 	if (ankle < 1 && ankle > 6)
 		throw logic_error("only 6 ankles");
 
-	return worldTransform[ankle].rotation();
+	return worldTransform[ankle-1].rotation();
 	}
 
 void roboter6::setEndEffektor (const trmat& other)
 	{
-	Endeffektor = other;
+		try {
+			Endeffektor = other;
+			BasKin1();
+			BasKin2();
+			BasKin3();
+		} rethrow
 	}
-void roboter6::giveInverseOptions(double aTheta[6][8])
+void roboter6::giveInverseOptions(double* aTheta)
 	{
-	for (int y = 0 ; y < 6 ; y++)
-		for (int x = 0 ;x < 8 ; x++)
-			aTheta[y][x] = theta[y][x];
+	for (int y = 0 ; y < 6 ; y++) {
+		for (int x = 0 ;x < 8 ; x++) {
+			*(aTheta+8*y+x) = theta[y][x];
+		}
+	}
 	}
 /*
 void roboter6::sortPossibilites()

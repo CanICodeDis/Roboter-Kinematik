@@ -29,7 +29,7 @@ BEGIN ROBOT 1
   Theta -180 180 0 10
   TransZ 1000 1000 1000 0
   TransX 0
-  Alpha -90
+  Alpha 90
  END JOINT
  BEGIN JOINT 5
   Theta -180 180 0 10

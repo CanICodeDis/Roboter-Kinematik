@@ -59,10 +59,10 @@ class JumpRobotJoints : public AbstractThreadMessage {
 	double cfg[6][2];
 	int n;
 public:
-	inline JumpRobotJoints( double v [6][8], int o, double* p ):n(o) {
+	inline JumpRobotJoints( double* v, int o, double* p ):n(o) {
 		for (int i=0; i<6; i++) {
 			cfg[i][0] = p[i];
-			cfg[i][1] = v[i][n];
+			cfg[i][1] = *(v+i*8+n);
 		}
 	}
 	inline JumpRobotJoints( double* val ) {
@@ -78,9 +78,11 @@ class RetrieveInverseOptions : public AbstractThreadMessage {
 	double values [6][8];
 	bool valid[8];
 public:
-	inline RetrieveInverseOptions() {
-		roboter->giveInverseOptions( values );
+	inline RetrieveInverseOptions(const arma::Col<double>& atarget) {
+		roboter->giveInverseOptions( &values[0][0] );
 		for (int o=0; o<8; o++) {
+			arma::Mat<double> trt(4,4,arma::fill::eye);
+			trmat Target = trmat(trt,0,4);
 			bool v = true; double det;
 			for (int i=0; i<6; i++) {
 				gelenk gel = roboter->getGelenk(i+1);
@@ -89,6 +91,15 @@ public:
 				det = test.validateRotation();
 				if (det <= 0.999 || det >= 1.001 ) {
 					v = false;
+				}
+				if (i<=3) {
+					Target = Target * test;
+					if (i==3) {
+						arma::Col<double> dist = Target.translation()-atarget;
+						if (dist(0)*dist(0)+dist(1)*dist(1)+dist(2)*dist(2) > 0.00001) {
+							v=false; //abweichung von handwurzel zu ziel zu groß
+						}
+					}
 				}
 			}
 			valid[o] = v;

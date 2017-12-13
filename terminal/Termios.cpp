@@ -4,7 +4,10 @@ void initTermios(int echo) {
 	tcgetattr(0, &oldTermios);
 	newTermios = oldTermios;
 	newTermios.c_lflag &=~ ICANON;
-	newTermios.c_lflag &=~ echo ? ECHO : ~ECHO;
+	if (echo)
+		newTermios.c_lflag |= ECHO;
+	else
+		newTermios.c_lflag &=~ ECHO;
 	tcsetattr(0, TCSANOW, &newTermios);
 }
 void resetTermios() {
